@@ -21,7 +21,7 @@ def parse_args():
     p.add_argument("--export-ansys", dest="ansys", action="store_true",
                    help="Also export Engineering Data CSV for Ansys")
 
-    # Geometri (mm)
+    # Geometry (mm)
     p.add_argument("--L", type=float, default=4000, help="Beam length")
     p.add_argument("--H", type=float, default=400, help="Beam height")
     p.add_argument("--B", type=float, default=140, help="Beam width (thickness)")
@@ -68,7 +68,7 @@ if __name__ == "__main__":
             for k,v in fd.items(): w.writerow([k, v])
         print(f"Wrote {fname}")
     
-    # --- Geometry (mm) ---
+    # Geometry (mm) 
     geo = Geometry(
         beam_length=args.L, beam_height=args.H, beam_width=args.B,
         plate_thickness=args.t_plate, slot_depth=args.slot_depth,
@@ -111,7 +111,7 @@ if __name__ == "__main__":
     print(f"  Total for n={args.n_dowels} [N]: {eym['Rd_total_N']:.1f}")
 
 
-    # --- Write combined params for later use ---
+    # Write combined params for later use 
     os.makedirs("out", exist_ok=True)
     with open("out/model_params.json", "w") as fjson:
         json.dump({
@@ -127,13 +127,13 @@ if __name__ == "__main__":
         }, fjson, indent=2)
     print("Wrote out/model_params.json")
 
-    # --- Example: ULS factors (optional demo) ---
+    # Example: ULS factors (optional demo)
     G = [Action("G_dead", is_permanent=True)]
     Q = [Action("Q_snow", psi0=0.7), Action("Q_wind", psi0=0.6)]
     combo = uls_basic(G, Q)
     print("ULS combo factors:", combo)
 
-        # --- Ansys export (optional) ---
+        # Ansys export (optional)
     if args.ansys:
         exporter = AnsysExporter()
         mat_dict = exporter.export_material(f"{args.cls}_SC{args.sc}", timber.elastic)

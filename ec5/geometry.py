@@ -4,16 +4,16 @@ from typing import List, Tuple
 
 @dataclass
 class Geometry:
-    beam_length: float        # [mm]
-    beam_height: float        # [mm]
-    beam_width: float         # [mm]  # limtretykkelse
-    plate_thickness: float    # [mm]
-    slot_depth: float         # [mm]  # innfelling
+    beam_length: float        
+    beam_height: float        
+    beam_width: float         
+    plate_thickness: float    
+    slot_depth: float         
     num_dowels: int
-    dowel_diameter: float     # [mm]
-    dowel_spacing: float      # [mm]  # senter–senter i lengderetning
-    edge_distance: float      # [mm]  # endeavstand
-    row_offset: float = 0.0   # [mm]  # for ev. rad nr. 2 senere
+    dowel_diameter: float     
+    dowel_spacing: float      
+    edge_distance: float      
+    row_offset: float = 0.0   
 
     
     def validate(self) -> None:
@@ -21,7 +21,7 @@ class Geometry:
         Basic geometry checks + EC5-like minimum spacing/edge distances for a single dowel/bolt row.
         Units here are mm (consistent with your CLI).
         """
-        # --- Basic sanity ---
+      
         assert self.beam_length > 0 and self.beam_height > 0 and self.beam_width > 0, "Beam dims must be > 0"
         assert 0 <= self.slot_depth < self.beam_height, "Slot depth must be less than beam height"
         assert self.num_dowels >= 1, "At least one dowel is required"
@@ -30,27 +30,26 @@ class Geometry:
         assert self.dowel_spacing > 0, "Dowel spacing > 0"
         assert self.edge_distance > 0, "Edge distance > 0"
 
-        # --- Fit in length (row along the beam axis) ---
+        # Fit in length (row along the beam axis) 
         min_length_needed = 2 * self.edge_distance + max(0, self.num_dowels - 1) * self.dowel_spacing
         assert self.beam_length >= min_length_needed, (
             f"BBeam is too short for the selected dowel pattern: ≥ {min_length_needed:.1f} mm, "
             f"have {self.beam_length:.1f} mm"
         )
 
-        # --- EC5-ish minimums (conservative, single row) ---
+      
         d = self.dowel_diameter
 
-        # Along-grain end distance (a3) — conservative 7d
+        # Along-grain end distance 
         min_a3 = 7 * d
         assert self.edge_distance >= min_a3, f"End distance a3 = {self.edge_distance:.1f} mm < 7d = {min_a3:.1f} mm"
 
-        # Along-grain spacing (s) — conservative 5d
+        # Along-grain spacing 
         min_s = 5 * d
         if self.num_dowels > 1:
             assert self.dowel_spacing >= min_s, f"Center dictance s = {self.dowel_spacing:.1f} mm < 5d = {min_s:.1f} mm"
 
-        # Across-grain edge distance (a2) — conservative 4d from row center to nearest free edge
-        # Your dowel_positions() places the row at mid-height -> half_clear is distance to top/bottom.
+        # Across-grain edge distance 
         min_a2 = 4 * d
         half_clear = 0.5 * self.beam_height
         assert half_clear >= min_a2, (

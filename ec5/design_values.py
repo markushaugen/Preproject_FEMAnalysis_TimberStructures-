@@ -16,7 +16,7 @@ class LoadDuration(Enum):
     SHORT = "short"
     INSTANTANEOUS = "instant"
 
-# --- EC5 k_mod table (completed for SC1/SC2/SC3) ---
+# EC5 k_mod table (completed for SC1/SC2/SC3) 
 K_MOD_TABLE = {
     # Service Class 1
     (ServiceClass.SC1, LoadDuration.PERMANENT): 0.60,
@@ -43,7 +43,7 @@ K_MOD_TABLE = {
 GAMMA_M_TIMBER = 1.3
 GAMMA_M_CONN = 1.3
 
-# --- Materialmodels ---   
+# Material properties and design values  
 @dataclass
 class OrthoElastic:
     EX: float; EY: float; EZ: float
@@ -78,7 +78,7 @@ class TimberDesign:
             "frd": self.design_value(s.frk, duration),
         }
 
-# --- Last og kombinasjoner (enkel) ---
+# Load and combination
 @dataclass
 class Action:
     name: str
@@ -86,7 +86,7 @@ class Action:
     gamma_Q: float = 1.5
     psi0: float = 0.7
     is_permanent: bool = False
-    nominal: float = 0.0  # valgfritt
+    nominal: float = 0.0  
 
 def uls_basic(permanent: List[Action], variable: List[Action]) -> List[Tuple[str, float]]:
     combos: List[Tuple[str, float]] = []
