@@ -57,8 +57,7 @@ class Geometry:
             "Increase beam height or adjust row position."
         )
 
-        # Slot margin in height (avoid slot biting too much into the a2 margin):
-        # Require remaining timber from slot to nearest edge ≥ 4d
+        # Slot margin in height
         remain_top = 0.5 * self.beam_height - self.slot_depth
         remain_bot = 0.5 * self.beam_height - self.slot_depth
         assert min(remain_top, remain_bot) >= min_a2, (
