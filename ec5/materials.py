@@ -2,7 +2,7 @@
 import csv, pathlib
 from .design_values import OrthoElastic, TimberStrength
 
-# Fallback (brukes hvis CSV ikke finnes)
+# Fallback (used if CSV not found)
 MATERIALS_FALLBACK = {
     "C24": {
         "elastic": OrthoElastic(EX=11_000e6, EY=370e6, EZ=370e6,
