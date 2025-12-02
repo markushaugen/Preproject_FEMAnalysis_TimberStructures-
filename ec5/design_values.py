@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, List, Tuple
 
-# --- EC5 enums ---
+# --- Enums ---
 class ServiceClass(Enum):
     SC1 = 1
     SC2 = 2
@@ -16,34 +16,31 @@ class LoadDuration(Enum):
     SHORT = "short"
     INSTANTANEOUS = "instant"
 
-# EC5 k_mod table (completed for SC1/SC2/SC3) 
+# --- k_mod table ---
 K_MOD_TABLE = {
-    # Service Class 1
     (ServiceClass.SC1, LoadDuration.PERMANENT): 0.60,
-    (ServiceClass.SC1, LoadDuration.LONG)      : 0.70,
-    (ServiceClass.SC1, LoadDuration.MEDIUM)    : 0.80,
-    (ServiceClass.SC1, LoadDuration.SHORT)     : 0.90,
+    (ServiceClass.SC1, LoadDuration.LONG): 0.70,
+    (ServiceClass.SC1, LoadDuration.MEDIUM): 0.80,
+    (ServiceClass.SC1, LoadDuration.SHORT): 0.90,
     (ServiceClass.SC1, LoadDuration.INSTANTANEOUS): 1.10,
 
-    # Service Class 2 (typical)
     (ServiceClass.SC2, LoadDuration.PERMANENT): 0.60,
-    (ServiceClass.SC2, LoadDuration.LONG)      : 0.70,
-    (ServiceClass.SC2, LoadDuration.MEDIUM)    : 0.80,
-    (ServiceClass.SC2, LoadDuration.SHORT)     : 0.90,
+    (ServiceClass.SC2, LoadDuration.LONG): 0.70,
+    (ServiceClass.SC2, LoadDuration.MEDIUM): 0.80,
+    (ServiceClass.SC2, LoadDuration.SHORT): 0.90,
     (ServiceClass.SC2, LoadDuration.INSTANTANEOUS): 1.10,
 
-    # Service Class 3 (more conservative)
     (ServiceClass.SC3, LoadDuration.PERMANENT): 0.50,
-    (ServiceClass.SC3, LoadDuration.LONG)      : 0.55,
-    (ServiceClass.SC3, LoadDuration.MEDIUM)    : 0.65,
-    (ServiceClass.SC3, LoadDuration.SHORT)     : 0.70,
+    (ServiceClass.SC3, LoadDuration.LONG): 0.55,
+    (ServiceClass.SC3, LoadDuration.MEDIUM): 0.65,
+    (ServiceClass.SC3, LoadDuration.SHORT): 0.70,
     (ServiceClass.SC3, LoadDuration.INSTANTANEOUS): 0.90,
-
 }
+
 GAMMA_M_TIMBER = 1.3
 GAMMA_M_CONN = 1.3
 
-# Material properties and design values  
+# --- Material model ---
 @dataclass
 class OrthoElastic:
     EX: float; EY: float; EZ: float
@@ -78,40 +75,51 @@ class TimberDesign:
             "frd": self.design_value(s.frk, duration),
         }
 
-# Load and combination
+# --- Loads ---
 @dataclass
 class Action:
     name: str
+    nominal: float
+    is_permanent: bool = False
     gamma_G: float = 1.35
     gamma_Q: float = 1.5
     psi0: float = 0.7
-    is_permanent: bool = False
-    nominal: float = 0.0  
 
-def uls_basic(permanent: List[Action], variable: List[Action]) -> List[Tuple[str, float]]:
-    combos: List[Tuple[str, float]] = []
-    for lead_idx, Qlead in enumerate(variable):
-        terms = [(G.name, G.gamma_G) for G in permanent]
-        terms.append((Qlead.name, Qlead.gamma_Q))
+def uls_basic(permanent: List[Action], variable: List[Action]) -> List[Tuple[str, Dict[str, float]]]:
+    combos = []
+    for lead_idx, Q_lead in enumerate(variable):
+        combo_name = f"ULS_{Q_lead.name}"
+        values = {}
+
+        for G in permanent:
+            values[G.name] = G.gamma_G * G.nominal
+
+        values[Q_lead.name] = Q_lead.gamma_Q * Q_lead.nominal
+
         for i, Qi in enumerate(variable):
-            if i == lead_idx:
-                continue
-            terms.append((Qi.name, Qi.gamma_Q * Qi.psi0))
-        combos.extend(terms)
+            if i != lead_idx:
+                values[Qi.name] = Qi.gamma_Q * Qi.psi0 * Qi.nominal
+
+        combos.append((combo_name, values))
+
     return combos
 
-# --- Ansys eksport (stub) ---
+# --- Ansys Exporter (short version) ---
 class AnsysExporter:
     def __init__(self, backend: str = "MAPDL"):
         self.backend = backend
 
     def export_material(self, name: str, o: OrthoElastic) -> Dict[str, float]:
-        return {"NAME": name, "EX": o.EX, "EY": o.EY, "EZ": o.EZ,
-                "PRXY": o.PP if False else o.PRXY, "PRYZ": o.PRYZ, "PRXZ": o.PRXZ,
-                "GXY": o.GXY, "GYZ": o.GYZ, "GXZ": o.GXZ}
+        return {
+            "NAME": name,
+            "EX": o.EX, "EY": o.EY, "EZ": o.EZ,
+            "PRXY": o.PRXY, "PRYZ": o.PRYZ, "PRXZ": o.PRXZ,
+            "GXY": o.GXY, "GYZ": o.GYZ, "GXZ": o.GXZ,
+        }
 
     def write_csv(self, path: str, data: Dict[str, float]) -> None:
         import csv
         with open(path, "w", newline="") as f:
             w = csv.DictWriter(f, fieldnames=list(data.keys()))
-            w.writeheader(); w.writerow(data)
+            w.writeheader()
+            w.writerow(data)
