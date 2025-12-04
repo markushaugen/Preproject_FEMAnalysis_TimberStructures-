@@ -4,6 +4,7 @@ from ec5.design_values import TimberDesign, ServiceClass, LoadDuration, Action, 
 from ec5.materials import get_timber, list_classes
 from ec5.geometry import Geometry
 from ec5.connection import FastenerSetup, eym_single_shear_design
+from ec5.exporter import MapdlExporter
 
 
 def parse_args():
@@ -16,6 +17,9 @@ def parse_args():
 
     p.add_argument("--out", dest="out", choices=["table", "json", "csv"], default="table")
     p.add_argument("--export-ansys", dest="ansys", action="store_true")
+    p.add_argument("--export-mapdl", dest="mapdl", action="store_true",
+               help="Export MAPDL .mac file for the generated model")
+
 
     # Geometry (mm)
     p.add_argument("--L", type=float, default=4000)
@@ -148,4 +152,18 @@ if __name__ == "__main__":
         mat_dict = exporter.export_material(f"{args.cls}_SC{args.sc}", timber.elastic)
         exporter.write_csv(f"material_{args.cls}_SC{args.sc}.csv", mat_dict)
         print(f"Wrote material_{args.cls}_SC{args.sc}.csv")
+
+    if args.mapdl:
+        os.makedirs("out", exist_ok=True)
+        exporter = MapdlExporter(element_size_mm=100.0)
+        mapdl_path = os.path.join("out", "mapdl_model.mac")
+        exporter.export_mapdl_model(
+            path=mapdl_path,
+            timber=timber,
+            geo=geo,
+            setup=setup,
+            model_name="timber_conn",
+        )
+        print(f"Wrote MAPDL script: {mapdl_path}")
+
 
