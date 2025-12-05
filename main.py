@@ -10,15 +10,15 @@ from ec5.exporter import MapdlExporter
 def parse_args():
     p = argparse.ArgumentParser(description="EC5 parameters + simple geometry")
     p.add_argument("--class", dest="cls", default="C24",
-                   help=f"Timber class (options: {', '.join(list_classes())})")
+                help=f"Timber class (options: {', '.join(list_classes())})")
     p.add_argument("--sc", dest="sc", type=int, default=1, choices=[1, 2, 3])
     p.add_argument("--duration", dest="dur", default="short",
-                   choices=["permanent", "long", "medium", "short", "instant"])
+                choices=["permanent", "long", "medium", "short", "instant"])
 
     p.add_argument("--out", dest="out", choices=["table", "json", "csv"], default="table")
     p.add_argument("--export-ansys", dest="ansys", action="store_true")
     p.add_argument("--export-mapdl", dest="mapdl", action="store_true",
-               help="Export MAPDL .mac file for the generated model")
+            help="Export MAPDL .mac file for the generated model")
 
 
     # Geometry (mm)
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     # --- Material setup ---
     elastic, strength = get_timber(args.cls)
     timber = TimberDesign(elastic=elastic, strength_char=strength,
-                          service_class=sc_enum(args.sc))
+                        service_class=sc_enum(args.sc))
     fd = timber.strengths_design(duration=dur_enum(args.dur))
 
     # Output strengths
@@ -95,8 +95,8 @@ if __name__ == "__main__":
 
     coords = geo.dowel_positions()
     print("\nGeometry (mm): L={}, H={}, B={}, t_plate={}, slot={}, n={}, d={}, s={}, a_edge={}"
-          .format(args.L, args.H, args.B, args.t_plate, args.slot_depth,
-                  args.n_dowels, args.d_dowel, args.s_dowel, args.a_edge))
+        .format(args.L, args.H, args.B, args.t_plate, args.slot_depth,
+                args.n_dowels, args.d_dowel, args.s_dowel, args.a_edge))
     print("Dowel positions (x,z) mm:", coords)
 
     # --- EC5 EYM connection design ---
@@ -142,7 +142,7 @@ if __name__ == "__main__":
     # --- Example ULS combinations ---
     G = [Action("G_dead", nominal=1.0, is_permanent=True)]
     Q = [Action("Q_snow", nominal=1.0, psi0=0.7),
-         Action("Q_wind", nominal=1.0, psi0=0.6)]
+        Action("Q_wind", nominal=1.0, psi0=0.6)]
     combo = uls_basic(G, Q)
     print("ULS combo factors:", combo)
 

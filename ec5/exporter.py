@@ -1,17 +1,19 @@
 # ec5/exporter.py
 from pathlib import Path
-
 from .geometry import Geometry
 from .connection import FastenerSetup
 from .design_values import TimberDesign
 
 
 class MapdlExporter:
-    """Exports a simple MAPDL model: timber beam + slotted-in steel plate."""
+    """Exports a simple MAPDL model: timber beam + optional slotted-in steel plate."""
 
     def __init__(self, element_size_mm: float = 100.0):
         self.element_size_mm = element_size_mm
 
+    # -------------------------------------------------------------------------
+    # MATERIAL DEFINITIONS
+    # -------------------------------------------------------------------------
     def _material_block_wood(self, mat_id: int, timber: TimberDesign) -> str:
         """Define orthotropic timber material (MAT = mat_id)."""
         e = timber.elastic
@@ -32,53 +34,48 @@ class MapdlExporter:
         return "\n".join(lines)
 
     def _material_block_steel(self, mat_id: int) -> str:
-        """Define an isotropic steel material (e.g. S355, MAT = mat_id)."""
-        lines = [
-            "! --- STEEL MATERIAL (MAT=2, S355 approx.) ---",
+        """Define isotropic steel material (approximately S355)."""
+        return "\n".join([
+            "! --- STEEL MATERIAL ---",
             f"mp,ex,{mat_id},210e9",
             f"mp,prxy,{mat_id},0.3",
             "",
-        ]
-        return "\n".join(lines)
+        ])
 
+    # -------------------------------------------------------------------------
+    # ELEMENT TYPE
+    # -------------------------------------------------------------------------
     def _element_block(self, et_id: int = 1) -> str:
-        """Define solid element type."""
-        lines = [
+        """Define SOLID186."""
+        return "\n".join([
             "! --- ELEMENT TYPE ---",
             f"et,{et_id},186",
             "",
-        ]
-        return "\n".join(lines)
+        ])
 
-    def _beam_block(self, geo: Geometry, mat_id: int) -> str:
-        """
-        Create the main timber beam volume (VOLU 1).
-        """
+    # -------------------------------------------------------------------------
+    # GEOMETRY CREATION
+    # -------------------------------------------------------------------------
+    def _beam_block(self, geo: Geometry) -> str:
+        """Create the main timber beam volume. No material assigned here."""
         L = geo.beam_length
         B = geo.beam_width
         H = geo.beam_height
 
-        lines = [
+        return "\n".join([
             "! --- TIMBER BEAM VOLUME (VOLU 1) ---",
             f"block,0,{L}, 0,{B}, 0,{H}",
-
-            "!", ";; FIXED MATERIAL ASSIGNMENT FOR TIMBER",
-            "*get,vid_beam,volu,0,num,max",     # pick last created volume
-            "vsel,s,volu,,vid_beam",
-            f"vatt,{mat_id}",
-            "allsel,all",
             "",
-        ]
-        return "\n".join(lines)
+        ])
 
-    def _slot_and_plate(self, geo: Geometry, mat_wood: int, mat_plate: int) -> str:
+    def _slot_and_plate(self, geo: Geometry) -> str:
         """
-        Create a slotted region and insert a steel plate.
+        Create a slot and a steel plate volume.
+        Only geometry; no materials assigned here.
         """
         L = geo.beam_length
         B = geo.beam_width
         H = geo.beam_height
-
         sd = geo.slot_depth
         tp = geo.plate_thickness
 
@@ -88,11 +85,11 @@ class MapdlExporter:
         lines: list[str] = []
 
         lines.append("! --- SLOT AND STEEL PLATE ---")
-        lines.append(f"! Beam length L={L}, slot depth sd={sd}, plate t={tp}")
+        lines.append(f"! Beam length {L}, slot depth {sd}, plate thickness {tp}")
         lines.append("")
 
-        if sd <= 0.0:
-            lines.append("! Slot depth <= 0 -> skip slot & plate creation")
+        if sd <= 0:
+            lines.append("! Slot depth <= 0 → no slot and no plate created")
             lines.append("")
             return "\n".join(lines)
 
@@ -100,45 +97,78 @@ class MapdlExporter:
         lines.extend([
             "! Create slot volume",
             f"block,0,{sd}, 0,{B}, {slot_z1},{slot_z2}",
-
-            "!", ";; GET SLOT ID",
             "*get,vid_slot,volu,0,num,max",
             "",
-        ])
-
-        # --- Subtract slot from timber beam ---
-        lines.extend([
-            "! Subtract slot from timber beam",
+            "! Subtract slot from timber beam (VOLU 1) and delete slot volume",
             "vsbv,1,vid_slot",
+            "vdele,vid_slot",  # delete the temporary slot volume
             "allsel,all",
             "",
         ])
 
-        # --- Create steel plate (same size as slot) ---
-        lines.extend([
-            "! Create steel plate volume",
-            f"block,0,{sd}, 0,{B}, {slot_z1},{slot_z2}",
 
-            "!", ";; FIXED MATERIAL ASSIGNMENT FOR STEEL",
-            "*get,vid_plate,volu,0,num,max",
-            "vsel,s,volu,,vid_plate",
-            f"vatt,{mat_plate}",
-            "allsel,all",
+        # --- Create steel plate ---
+        lines.extend([
+            "! Create steel plate volume (after subtraction)",
+            f"block,0,{sd}, 0,{B}, {slot_z1},{slot_z2}",
             "",
         ])
 
         return "\n".join(lines)
 
+    # -------------------------------------------------------------------------
+    # MATERIAL ASSIGNMENT AFTER GEOMETRY
+    # -------------------------------------------------------------------------
+    def _assign_materials_two_volumes(self, mat_wood: int, mat_steel: int, et_id: int) -> str:
+        """Assign MAT/TYP after geometry is complete (beam + plate)."""
+        return "\n".join([
+            "! --- MATERIAL ASSIGNMENT (BEAM + PLATE) ---",
+            "*get,v_beam,volu,0,num,min",
+            "*get,v_plate,volu,0,num,max",
+            f"type,{et_id}",
+            "",
+            "! Timber beam",
+            "vsel,s,volu,,v_beam",
+            f"vatt,{mat_wood},,{et_id}",
+            "",
+            "! Steel plate",
+            "vsel,s,volu,,v_plate",
+            f"vatt,{mat_steel},,{et_id}",
+            "",
+            "allsel,all",
+            "",
+        ])
+
+    def _assign_material_single_volume(self, mat_wood: int, et_id: int) -> str:
+        """If no slot is created, only beam exists."""
+        return "\n".join([
+            "! --- MATERIAL ASSIGNMENT (ONLY BEAM) ---",
+            f"type,{et_id}",
+            "vsel,all",
+            f"vatt,{mat_wood},,{et_id}",
+            "allsel,all",
+            "",
+        ])
+
+    # -------------------------------------------------------------------------
+    # MESH
+    # -------------------------------------------------------------------------
     def _mesh_block(self) -> str:
         h = self.element_size_mm
         return "\n".join([
             "! --- MESHING ---",
+            "mshape,0,3      ! free 3D meshing, no mapped bricks",
+            "mopt,volu,free  ! force free meshing on volumes",
             f"esize,{h}",
             "vmesh,all",
             "finish",
             "",
         ])
 
+
+    # -------------------------------------------------------------------------
+    # EXPORT FUNCTION
+    # -------------------------------------------------------------------------
     def export_mapdl_model(
         self,
         path: str,
@@ -154,15 +184,23 @@ class MapdlExporter:
 
         lines: list[str] = []
 
+        # MATERIAL + ELEMENT DEFINITIONS
         lines.append(self._material_block_wood(mat_wood, timber))
         lines.append(self._material_block_steel(mat_steel))
         lines.append(self._element_block(et_id))
 
-        lines.append(self._beam_block(geo, mat_wood))
-        lines.append(self._slot_and_plate(geo, mat_wood, mat_steel))
+        # GEOMETRY
+        lines.append(self._beam_block(geo))
+        lines.append(self._slot_and_plate(geo))
 
+        # MATERIAL ASSIGNMENT (after all boolean operations)
+        if geo.slot_depth > 0:
+            lines.append(self._assign_materials_two_volumes(mat_wood, mat_steel, et_id))
+        else:
+            lines.append(self._assign_material_single_volume(mat_wood, et_id))
+
+        # MESH + SAVE
         lines.append(self._mesh_block())
-        lines.append(f"/save,'{model_name}','db'")
+        
 
         Path(path).write_text("\n".join(lines))
-
