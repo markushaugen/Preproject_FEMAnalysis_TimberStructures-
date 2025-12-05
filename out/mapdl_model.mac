@@ -1,0 +1,56 @@
+/PREP7
+! --- TIMBER MATERIAL ---
+mp,ex,1,11000000000.0
+mp,ey,1,370000000.0
+mp,ez,1,370000000.0
+mp,prxy,1,0.35
+mp,pryz,1,0.35
+mp,prxz,1,0.35
+mp,gxy,1,690000000.0
+mp,gyz,1,552000000.0
+mp,gxz,1,552000000.0
+
+! --- STEEL MATERIAL (MAT=2, S355 approx.) ---
+mp,ex,2,210e9
+mp,prxy,2,0.3
+
+! --- ELEMENT TYPE ---
+et,1,186
+
+! --- TIMBER BEAM VOLUME (VOLU 1) ---
+block,0,4000, 0,140, 0,400
+!
+;; FIXED MATERIAL ASSIGNMENT FOR TIMBER
+*get,vid_beam,volu,0,num,max
+vsel,s,volu,,vid_beam
+vatt,1
+allsel,all
+
+! --- SLOT AND STEEL PLATE ---
+! Beam length L=4000, slot depth sd=20, plate t=8
+
+! Create slot volume
+block,0,20, 0,140, 196.0,204.0
+!
+;; GET SLOT ID
+*get,vid_slot,volu,0,num,max
+
+! Subtract slot from timber beam
+vsbv,1,vid_slot
+allsel,all
+
+! Create steel plate volume
+block,0,20, 0,140, 196.0,204.0
+!
+;; FIXED MATERIAL ASSIGNMENT FOR STEEL
+*get,vid_plate,volu,0,num,max
+vsel,s,volu,,vid_plate
+vatt,2
+allsel,all
+
+! --- MESHING ---
+esize,100.0
+vmesh,all
+finish
+
+/save,'timber_conn','db'
