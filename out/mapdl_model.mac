@@ -1,5 +1,5 @@
 /PREP7
-! --- TIMBER MATERIAL ---
+! timber material
 mp,ex,1,11000000000.0
 mp,ey,1,370000000.0
 mp,ez,1,370000000.0
@@ -10,49 +10,57 @@ mp,gxy,1,690000000.0
 mp,gyz,1,552000000.0
 mp,gxz,1,552000000.0
 
-! --- STEEL MATERIAL ---
+! steel material
 mp,ex,2,210e9
 mp,prxy,2,0.3
 
-! --- ELEMENT TYPE ---
+! element type
 et,1,186
 
-! --- TIMBER BEAM VOLUME (VOLU 1) ---
+! timber beam volume
 block,0,4000, 0,140, 0,400
+*get,vid_beam,volu,0,num,max
+cm,BEAM,volu,vid_beam
+allsel,all
 
-! --- SLOT AND STEEL PLATE ---
-! Beam length 4000, slot depth 20, plate thickness 8
+! slot and steel plate
+! L=4000, slot_depth=20, t_plate=8
 
-! Create slot volume
+! create slot volume
 block,0,20, 0,140, 196.0,204.0
 *get,vid_slot,volu,0,num,max
 
-! Subtract slot from timber beam (VOLU 1) and delete slot volume
-vsbv,1,vid_slot
+! subtract slot from BEAM
+cmsel,s,BEAM
+vsbv,all,vid_slot
+allsel,all
 vdele,vid_slot
+
+! re-create BEAM component after boolean
+cmsel,s,BEAM
+*get,vid_beam_new,volu,0,num,min
+cm,BEAM,volu,vid_beam_new
 allsel,all
 
-! Create steel plate volume (after subtraction)
+! create steel plate volume at slot position
 block,0,20, 0,140, 196.0,204.0
+*get,vid_plate,volu,0,num,max
+cm,PLATE,volu,vid_plate
+allsel,all
 
-! --- MATERIAL ASSIGNMENT (BEAM + PLATE) ---
-*get,v_beam,volu,0,num,min
-*get,v_plate,volu,0,num,max
+! material assignment: all wood, plate overridden to steel
 type,1
-
-! Timber beam
-vsel,s,volu,,v_beam
+vsel,all
 vatt,1,,1
 
-! Steel plate
-vsel,s,volu,,v_plate
+cmsel,s,PLATE
 vatt,2,,1
 
 allsel,all
 
-! --- MESHING ---
-mshape,0,3      ! free 3D meshing, no mapped bricks
-mopt,volu,free  ! force free meshing on volumes
+! meshing
 esize,100.0
+vsel,all
 vmesh,all
+allsel,all
 finish
