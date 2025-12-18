@@ -9,10 +9,10 @@ from .design_values import TimberDesign, LoadDuration, GAMMA_M_CONN
 
 @dataclass
 class FastenerSetup:
-    d_mm: float       # fastener diameter [mm]
-    t_wood_mm: float  # timber thickness in one shear plane [mm]
-    n: int            # number of fasteners (single shear, single row)
-    fy_steel: float = 355e6  # bolt steel yield strength [Pa] (e.g. S355)
+    d_mm: float       
+    t_wood_mm: float  
+    n: int            
+    fy_steel: float = 355e6  
 
 
 def embedment_strength_char(rho_k: float, d_mm: float) -> float:
@@ -23,7 +23,7 @@ def embedment_strength_char(rho_k: float, d_mm: float) -> float:
     with rho_k in kg/m^3 and d in mm.
     Returns fh,0,k in N/mm^2.
     """
-    return 0.082 * (1.0 - 0.01 * d_mm) * rho_k  # [N/mm^2]
+    return 0.082 * (1.0 - 0.01 * d_mm) * rho_k  
 
 
 def bolt_yield_moment_char(d_mm: float, fy: float) -> float:
@@ -33,8 +33,8 @@ def bolt_yield_moment_char(d_mm: float, fy: float) -> float:
         My,Rk = 0.3 * fy * d^3
     with fy in N/mm^2 and d in mm.
     """
-    fy_N_per_mm2 = fy / 1e6  # convert Pa -> N/mm^2
-    return 0.3 * fy_N_per_mm2 * (d_mm ** 3)  # [Nmm]
+    fy_N_per_mm2 = fy / 1e6  
+    return 0.3 * fy_N_per_mm2 * (d_mm ** 3)  
 
 
 def eym_single_shear_design(
@@ -63,21 +63,20 @@ def eym_single_shear_design(
     t = setup.t_wood_mm
     n = setup.n
 
-    # Characteristic embedment strength fh,k [N/mm^2]
+    # Characteristic embedment strength fh,k 
     fhk = embedment_strength_char(rho_k, d)
 
-    # Characteristic fastener yield moment My,Rk [Nmm]
+    # Characteristic fastener yield moment My,Rk 
     My_Rk = bolt_yield_moment_char(d, setup.fy_steel)
 
-    # Characteristic per-fastener resistances [N]
+    # Characteristic per-fastener resistances 
     Rk_a = fhk * d * t
     Rk_b = 1.15 * math.sqrt(2.0 * My_Rk * fhk * d)
     Rk_c = 2.3 * My_Rk / t
 
-    # k_mod from timber (service class + load-duration)
     kmod = timber.k_mod(duration)
 
-    # Design values (per fastener) [N]
+    # Design values 
     Rd_a = kmod * Rk_a / gamma_M_conn
     Rd_b = kmod * Rk_b / gamma_M_conn
     Rd_c = kmod * Rk_c / gamma_M_conn

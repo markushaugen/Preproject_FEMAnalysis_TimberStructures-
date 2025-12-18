@@ -52,7 +52,7 @@ def dur_enum(s):
 if __name__ == "__main__":
     args = parse_args()
 
-    # --- Material setup ---
+    # Material setup 
     elastic, strength = get_timber(args.cls)
     timber = TimberDesign(elastic=elastic, strength_char=strength,
                         service_class=sc_enum(args.sc))
@@ -79,7 +79,7 @@ if __name__ == "__main__":
                 w.writerow([k, v])
         print(f"Wrote {fname}")
 
-    # --- Geometry ---
+    # Geometry 
     geo = Geometry(
         beam_length=args.L, beam_height=args.H, beam_width=args.B,
         plate_thickness=args.t_plate, slot_depth=args.slot_depth,
@@ -99,8 +99,8 @@ if __name__ == "__main__":
                 args.n_dowels, args.d_dowel, args.s_dowel, args.a_edge))
     print("Dowel positions (x,z) mm:", coords)
 
-    # --- EC5 EYM connection design ---
-    rho_k = 420.0  # typical C24 density
+    # EC5 EYM connection design 
+    rho_k = 420.0  # C24 density
     setup = FastenerSetup(
         d_mm=args.d_dowel,
         t_wood_mm=args.B,
@@ -121,7 +121,7 @@ if __name__ == "__main__":
     print(f"  Governing per fastener [N]: {eym['Rd_governing_per_fastener_N']:.1f}")
     print(f"  Total for n={args.n_dowels} [N]: {eym['Rd_total_N']:.1f}")
 
-    # --- Save model parameters ---
+    # Save model parameters
     os.makedirs("out", exist_ok=True)
     with open("out/model_params.json", "w") as fjson:
         json.dump({
@@ -139,14 +139,14 @@ if __name__ == "__main__":
         }, fjson, indent=2)
     print("Wrote out/model_params.json")
 
-    # --- Example ULS combinations ---
+    # Example ULS combinations 
     G = [Action("G_dead", nominal=1.0, is_permanent=True)]
     Q = [Action("Q_snow", nominal=1.0, psi0=0.7),
         Action("Q_wind", nominal=1.0, psi0=0.6)]
     combo = uls_basic(G, Q)
     print("ULS combo factors:", combo)
 
-    # --- Optional Ansys export ---
+    # Optional Ansys export 
     if args.ansys:
         exporter = AnsysExporter()
         mat_dict = exporter.export_material(f"{args.cls}_SC{args.sc}", timber.elastic)

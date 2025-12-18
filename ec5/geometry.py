@@ -5,16 +5,16 @@ from typing import List, Tuple
 
 @dataclass
 class Geometry:
-    beam_length: float        # [mm]
-    beam_height: float        # [mm]
-    beam_width: float         # [mm]
-    plate_thickness: float    # [mm]
-    slot_depth: float         # [mm] depth from beam surface towards mid-depth
+    beam_length: float        
+    beam_height: float        
+    beam_width: float         
+    plate_thickness: float    
+    slot_depth: float         
     num_dowels: int
-    dowel_diameter: float     # [mm]
-    dowel_spacing: float      # [mm]
-    edge_distance: float      # [mm] along-grain from beam end to first dowel
-    row_offset: float = 0.0   # [mm] vertical offset of row from mid-height (+ up, - down)
+    dowel_diameter: float     
+    dowel_spacing: float      
+    edge_distance: float      
+    row_offset: float = 0.0   
 
     def validate(self) -> None:
         # Basic sanity checks
@@ -52,7 +52,7 @@ class Geometry:
                 f"Center distance s = {self.dowel_spacing:.1f} mm < 5d = {min_s:.1f} mm"
             )
 
-        # Across-grain edge distance a2 ≥ 4d (min distance to top/bottom)
+        # Across-grain edge distance a2 ≥ 4d 
         min_a2 = 4 * d
         a2_top = self.beam_height - z_row
         a2_bot = z_row
@@ -62,7 +62,7 @@ class Geometry:
             "Increase beam height or adjust row position."
         )
 
-        # Slot margin in height (assume slot is centred at dowel row height)
+        # Slot margin in height 
         remain_top = a2_top - self.slot_depth
         remain_bot = a2_bot - self.slot_depth
         remain_min = min(remain_top, remain_bot)
