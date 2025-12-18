@@ -50,7 +50,6 @@ def load_catalog(csv_path: str = "data/timber_classes.csv") -> Dict[str, Tuple[O
 
     path = pathlib.Path(csv_path)
     if not path.is_absolute():
-        # Resolve relative to project root (two levels up from this file: ec5/ -> project root)
         base = pathlib.Path(__file__).resolve().parents[1]
         path = base / path
 

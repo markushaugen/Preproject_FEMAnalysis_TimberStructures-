@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, List, Tuple
 
-# --- Enums ---
+# Enums 
 class ServiceClass(Enum):
     SC1 = 1
     SC2 = 2
@@ -16,7 +16,7 @@ class LoadDuration(Enum):
     SHORT = "short"
     INSTANTANEOUS = "instant"
 
-# --- k_mod table ---
+# k_mod table 
 K_MOD_TABLE = {
     (ServiceClass.SC1, LoadDuration.PERMANENT): 0.60,
     (ServiceClass.SC1, LoadDuration.LONG): 0.70,
@@ -40,7 +40,7 @@ K_MOD_TABLE = {
 GAMMA_M_TIMBER = 1.3
 GAMMA_M_CONN = 1.3
 
-# --- Material model ---
+# Material model 
 @dataclass
 class OrthoElastic:
     EX: float; EY: float; EZ: float
@@ -75,7 +75,7 @@ class TimberDesign:
             "frd": self.design_value(s.frk, duration),
         }
 
-# --- Loads ---
+# Loads 
 @dataclass
 class Action:
     name: str
@@ -104,7 +104,7 @@ def uls_basic(permanent: List[Action], variable: List[Action]) -> List[Tuple[str
 
     return combos
 
-# --- Ansys Exporter (short version) ---
+# Ansys Exporter short
 class AnsysExporter:
     def __init__(self, backend: str = "MAPDL"):
         self.backend = backend

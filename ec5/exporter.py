@@ -10,9 +10,8 @@ class MapdlExporter:
     def __init__(self, element_size_mm: float = 100.0):
         self.element_size_mm = element_size_mm
 
-    # -------------------------------------------------------------------------
+ 
     # MATERIALS
-    # -------------------------------------------------------------------------
     def _material_block_wood(self, mat_id: int, timber: TimberDesign) -> str:
         e = timber.elastic
         return "\n".join([
@@ -38,9 +37,8 @@ class MapdlExporter:
             "",
         ])
 
-    # -------------------------------------------------------------------------
+
     # ELEMENT TYPE
-    # -------------------------------------------------------------------------
     def _element_block(self, et_id: int = 1) -> str:
         return "\n".join([
             "! element type",
@@ -48,9 +46,8 @@ class MapdlExporter:
             "",
         ])
 
-    # -------------------------------------------------------------------------
+
     # GEOMETRY
-    # -------------------------------------------------------------------------
     def _beam_block(self, geo: Geometry) -> str:
         """Create main beam volume and store it in component BEAM."""
         L = geo.beam_length
@@ -120,9 +117,8 @@ class MapdlExporter:
 
         return "\n".join(lines)
 
-    # -------------------------------------------------------------------------
+
     # MATERIAL ASSIGNMENT
-    # -------------------------------------------------------------------------
     def _assign_materials(self, mat_wood: int, mat_steel: int, et_id: int) -> str:
         """
         First give all volumes wood (MAT=mat_wood),
@@ -156,9 +152,8 @@ class MapdlExporter:
             "",
         ])
 
-    # -------------------------------------------------------------------------
+
     # EXPORT
-    # -------------------------------------------------------------------------
     def export_mapdl_model(
         self,
         path: str,
