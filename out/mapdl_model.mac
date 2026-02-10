@@ -18,16 +18,14 @@ mp,prxy,2,0.3
 et,1,186
 
 ! timber beam volume
-block,0,4000, 0,140, 0,400
+block,0,4000, 0,400, 0,140
 *get,vid_beam,volu,0,num,max
 cm,BEAM,volu,vid_beam
 allsel,all
 
 ! slot and steel plate
-! L=4000, slot_depth=20, t_plate=8
-
 ! create slot volume
-block,0,20, 0,140, 196.0,204.0
+block,600,4000, 30,370, 66.0,74.0
 *get,vid_slot,volu,0,num,max
 
 ! subtract slot from BEAM
@@ -35,17 +33,52 @@ cmsel,s,BEAM
 vsbv,all,vid_slot
 allsel,all
 vdele,vid_slot
+nummrg,all
 
-! re-create BEAM component after boolean
-cmsel,s,BEAM
-*get,vid_beam_new,volu,0,num,min
-cm,BEAM,volu,vid_beam_new
-allsel,all
-
-! create steel plate volume at slot position
-block,0,20, 0,140, 196.0,204.0
+! create steel plate volume
+block,600,4000, 31.0,369.0, 66.0,74.0
 *get,vid_plate,volu,0,num,max
 cm,PLATE,volu,vid_plate
+allsel,all
+
+! dowels
+! CYL4 is used with WP reset for robustness
+cmdele,DOWELS
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,0
+WPROTA,0,0,0
+CYL4,100.0,200.0,6.0,,,,140
+*get,vid_dowel_1,volu,0,num,max
+cm,DOWELS,volu,vid_dowel_1
+allsel,all
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,0
+WPROTA,0,0,0
+CYL4,220.0,200.0,6.0,,,,140
+*get,vid_dowel_2,volu,0,num,max
+cm,DOWELS,volu,vid_dowel_2
+allsel,all
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,0
+WPROTA,0,0,0
+CYL4,340.0,200.0,6.0,,,,140
+*get,vid_dowel_3,volu,0,num,max
+cm,DOWELS,volu,vid_dowel_3
+allsel,all
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,0
+WPROTA,0,0,0
+CYL4,460.0,200.0,6.0,,,,140
+*get,vid_dowel_4,volu,0,num,max
+cm,DOWELS,volu,vid_dowel_4
 allsel,all
 
 ! material assignment: all wood, plate overridden to steel
