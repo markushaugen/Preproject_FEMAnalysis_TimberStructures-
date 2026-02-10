@@ -5,30 +5,38 @@ from typing import List, Tuple
 
 @dataclass
 class Geometry:
-    beam_length: float        
-    beam_height: float        
-    beam_width: float         
-    plate_thickness: float    
-    slot_depth: float         
-    num_dowels: int
-    dowel_diameter: float     
-    dowel_spacing: float      
-    edge_distance: float      
-    row_offset: float = 0.0   
+    beam_length: float
+    beam_height: float   # Y-direction in MAPDL
+    beam_width: float    # Z-direction in MAPDL (thickness)
+    plate_thickness: float
+
+    slot_x1: float = 600
+    slot_x2: float = 1000
+    slot_y1: float = 30
+    slot_y2: float = 170
+    clearance_y: float = 2.0
+
+    num_dowels: int = 4
+    dowel_diameter: float = 16
+    dowel_spacing: float = 100
+    edge_distance: float = 650
+    row_offset: float = 0.0
 
     def validate(self) -> None:
         # Basic sanity checks
         assert self.beam_length > 0 and self.beam_height > 0 and self.beam_width > 0, "Beam dims must be > 0"
-        assert 0 <= self.slot_depth < self.beam_height, "Slot depth must be less than beam height"
+        assert 0 <= self.slot_x1 < self.slot_x2 <= self.beam_length, "Slot x-range must satisfy 0 <= x1 < x2 <= L"
+        assert 0 <= self.slot_y1 < self.slot_y2 <= self.beam_height, "Slot y-range must satisfy 0 <= y1 < y2 <= H"
+        assert 0 <= self.clearance_y < (self.slot_y2 - self.slot_y1), "clearance_y must be smaller than slot height in Y"
         assert self.num_dowels >= 1, "At least one dowel is required"
         assert self.dowel_diameter > 0, "Dowel diameter must be > 0"
-        assert self.plate_thickness > 0, "Plate thickness must be > 0"
+        assert self.plate_thickness <= self.beam_width, "Plate thickness must be <= beam width (Z-direction)"
         assert self.dowel_spacing > 0, "Dowel spacing must be > 0"
         assert self.edge_distance > 0, "Edge distance must be > 0"
 
-        # Dowel row within z bounds
-        z_row = self.beam_height / 2.0 + self.row_offset
-        assert 0.0 < z_row < self.beam_height, "Dowel row must lie inside the beam height"
+        # Dowel row within Y bounds
+        y_row = self.beam_height / 2.0 + self.row_offset
+        assert 0.0 < y_row < self.beam_height, "Dowel row must lie inside the beam height (Y)"
 
         # Fit along beam length
         min_length_needed = 2 * self.edge_distance + max(0, self.num_dowels - 1) * self.dowel_spacing
@@ -52,31 +60,24 @@ class Geometry:
                 f"Center distance s = {self.dowel_spacing:.1f} mm < 5d = {min_s:.1f} mm"
             )
 
-        # Across-grain edge distance a2 ≥ 4d 
+        # Across-grain edge distance check in Y-direction (simple symmetric assumption)
         min_a2 = 4 * d
-        a2_top = self.beam_height - z_row
-        a2_bot = z_row
+        a2_top = self.beam_height - y_row
+        a2_bot = y_row
         a2_min = min(a2_top, a2_bot)
         assert a2_min >= min_a2, (
             f"Across-grain edge distance a2 = {a2_min:.1f} mm < 4d = {min_a2:.1f} mm. "
             "Increase beam height or adjust row position."
         )
 
-        # Slot margin in height 
-        remain_top = a2_top - self.slot_depth
-        remain_bot = a2_bot - self.slot_depth
-        remain_min = min(remain_top, remain_bot)
-        assert remain_min >= min_a2, (
-            f"Remaining timber from slot to edge = {remain_min:.1f} mm < 4d = {min_a2:.1f} mm. "
-            "Reduce slot depth or increase beam height."
-        )
-
     def dowel_positions(self) -> List[Tuple[float, float]]:
         """
-        Returns (x, z) coordinates in millimetres for a single dowel row.
-        x: along the beam length from the left end,
-        z: measured upward from the bottom edge.
+        Returns (x, y) coordinates in millimetres for a single dowel row.
+        x: along the beam length (X)
+        y: along the beam height (Y)
+        Dowel axis is along Z with depth = beam_width.
         """
         x0 = self.edge_distance
-        z = self.beam_height / 2.0 + self.row_offset
-        return [(x0 + i * self.dowel_spacing, z) for i in range(self.num_dowels)]
+        y = self.beam_height / 2.0 + self.row_offset
+        return [(x0 + i * self.dowel_spacing, y) for i in range(self.num_dowels)]
+

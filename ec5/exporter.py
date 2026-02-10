@@ -56,7 +56,7 @@ class MapdlExporter:
 
         return "\n".join([
             "! timber beam volume",
-            f"block,0,{L}, 0,{B}, 0,{H}",
+            f"block,0,{L}, 0,{H}, 0,{B}",
             "*get,vid_beam,volu,0,num,max",
             "cm,BEAM,volu,vid_beam",
             "allsel,all",
@@ -64,31 +64,34 @@ class MapdlExporter:
         ])
 
     def _slot_and_plate(self, geo: Geometry) -> str:
-        """Create slot (subtract from BEAM) and plate volume (component PLATE)."""
-        sd = geo.slot_depth
-        if sd <= 0:
-            return "\n".join([
-                "! no slot or plate (slot_depth <= 0)",
-                "",
-            ])
+        tp = geo.plate_thickness
+        if tp <= 0:
+            return "! no plate\n"
 
         L = geo.beam_length
-        B = geo.beam_width
         H = geo.beam_height
-        tp = geo.plate_thickness
-        slot_z1 = H / 2.0 - tp / 2.0
-        slot_z2 = H / 2.0 + tp / 2.0
+        B = geo.beam_width
 
-        lines: list[str] = []
+        slot_x1 = geo.slot_x1
+        slot_x2 = geo.slot_x2
+        slot_y1 = geo.slot_y1
+        slot_y2 = geo.slot_y2
 
+        cY = geo.clearance_y
+        plate_y1 = slot_y1 + cY/2.0
+        plate_y2 = slot_y2 - cY/2.0
+
+        # Plate thickness centered in Z (beam width)
+        slot_z1 = B/2.0 - tp/2.0
+        slot_z2 = B/2.0 + tp/2.0
+
+        lines = []
         lines.append("! slot and steel plate")
-        lines.append(f"! L={L}, slot_depth={sd}, t_plate={tp}")
-        lines.append("")
 
-        # slot
-        lines.extend([
+        # slot tool volume
+        lines += [
             "! create slot volume",
-            f"block,0,{sd}, 0,{B}, {slot_z1},{slot_z2}",
+            f"block,{slot_x1},{slot_x2}, {slot_y1},{slot_y2}, {slot_z1},{slot_z2}",
             "*get,vid_slot,volu,0,num,max",
             "",
             "! subtract slot from BEAM",
@@ -96,24 +99,48 @@ class MapdlExporter:
             "vsbv,all,vid_slot",
             "allsel,all",
             "vdele,vid_slot",
+            "nummrg,all",
             "",
-            "! re-create BEAM component after boolean",
-            "cmsel,s,BEAM",
-            "*get,vid_beam_new,volu,0,num,min",
-            "cm,BEAM,volu,vid_beam_new",
-            "allsel,all",
-            "",
-        ])
+        ]
 
-        # plate
-        lines.extend([
-            "! create steel plate volume at slot position",
-            f"block,0,{sd}, 0,{B}, {slot_z1},{slot_z2}",
+        # plate volume (same X,Z but reduced Y to create clearance)
+        lines += [
+            "! create steel plate volume",
+            f"block,{slot_x1},{slot_x2}, {plate_y1},{plate_y2}, {slot_z1},{slot_z2}",
             "*get,vid_plate,volu,0,num,max",
             "cm,PLATE,volu,vid_plate",
             "allsel,all",
             "",
-        ])
+        ]
+
+        return "\n".join(lines)
+
+    
+
+    #Dowels
+    def _dowels_block(self, geo: Geometry) -> str:
+        """Create dowel volumes using CYL4. Stores them in component DOWELS."""
+        r = geo.dowel_diameter / 2.0
+        B = geo.beam_width  # depth in Z-direction
+
+        lines: list[str] = []
+        lines.append("! dowels")
+        lines.append("! CYL4 is used with WP reset for robustness")
+        lines.append("cmdele,DOWELS")  # safe if not existing in some versions; ok if ignored
+        lines.append("")
+
+        for i, (x, y) in enumerate(geo.dowel_positions(), start=1):
+            lines.extend([
+                "CSYS,0",
+                "WPCSYS,-1",
+                "WPOFFS,0,0,0",
+                "WPROTA,0,0,0",
+                f"CYL4,{x},{y},{r},,,,{B}",
+                f"*get,vid_dowel_{i},volu,0,num,max",
+                f"cm,DOWELS,volu,vid_dowel_{i}",
+                "allsel,all",
+                "",
+            ])
 
         return "\n".join(lines)
 
@@ -173,6 +200,7 @@ class MapdlExporter:
         blocks.append(self._element_block(et_id))
         blocks.append(self._beam_block(geo))
         blocks.append(self._slot_and_plate(geo))
+        blocks.append(self._dowels_block(geo))
         blocks.append(self._assign_materials(mat_wood, mat_steel, et_id))
         blocks.append(self._mesh_block())
 

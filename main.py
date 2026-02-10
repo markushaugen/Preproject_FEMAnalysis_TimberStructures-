@@ -82,7 +82,7 @@ if __name__ == "__main__":
     # Geometry 
     geo = Geometry(
         beam_length=args.L, beam_height=args.H, beam_width=args.B,
-        plate_thickness=args.t_plate, slot_depth=args.slot_depth,
+        plate_thickness=args.t_plate, slot_x1=600, slot_x2=args.L, slot_y1=30, slot_y2=args.H - 30, clearance_y=2.0,
         num_dowels=args.n_dowels, dowel_diameter=args.d_dowel,
         dowel_spacing=args.s_dowel, edge_distance=args.a_edge
     )
