@@ -1,0 +1,86 @@
+/COM,ANSYS RELEASE 2025 R2           BUILD 25.2      UP20250519       12:33:09
+
+ *** WARNING ***                         CP =       3.938   TIME= 12:33:34
+ Unselected volume 2.                                                    
+
+ *** ERROR ***                           CP =       4.391   TIME= 12:33:34
+ Volume 3 has invalid topology for mapped brick meshing.                 
+/COM,ANSYS RELEASE 2025 R2           BUILD 25.2      UP20250519       13:31:20
+
+ *** WARNING ***                         CP =       3.703   TIME= 13:31:54
+ Unselected volume 2.                                                    
+
+ *** ERROR ***                           CP =       4.375   TIME= 13:31:54
+ Need at least 2 volumes for VADD command.                               
+  Please input volumes.                                                  
+/COM,ANSYS RELEASE 2025 R2           BUILD 25.2      UP20250519       13:43:14
+
+ *** WARNING ***                         CP =       3.438   TIME= 13:44:11
+ Unselected volume 2.                                                    
+
+ *** ERROR ***                           CP =       3.891   TIME= 13:44:11
+ Need at least 2 volumes for VADD command.                               
+  Please input volumes.                                                  
+
+ *** WARNING ***                         CP =       4.422   TIME= 13:44:27
+ Assembly SLOT_TOOLS is deleted.                                         
+
+ *** ERROR ***                           CP =       4.500   TIME= 13:44:27
+ Need at least 2 volumes for VADD command.                               
+  Please input volumes.                                                  
+
+ *** WARNING ***                         CP =       4.609   TIME= 13:44:29
+ Assembly SLOT_TOOLS is deleted.                                         
+
+ *** ERROR ***                           CP =       4.672   TIME= 13:44:29
+ Volume list to be subtracted is empty.                                  
+
+ *** ERROR ***                           CP =       4.750   TIME= 13:44:32
+ Component SLOT_TOOLS is not defined.                                    
+
+ *** WARNING ***                         CP =       4.828   TIME= 13:44:34
+ Assembly BEAM is deleted.                                               
+
+ *** WARNING ***                         CP =       4.844   TIME= 13:44:34
+ Assembly PLATE is deleted.                                              
+
+ *** ERROR ***                           CP =       4.906   TIME= 13:44:34
+ Component PLATE is not defined.                                         
+
+ *** ERROR ***                           CP =       4.984   TIME= 13:44:36
+ Volume 1 has invalid topology for mapped brick meshing.                 
+
+ *** WARNING ***                         CP =      12.547   TIME= 13:58:03
+ Unselected volume 2.                                                    
+
+ *** ERROR ***                           CP =      13.344   TIME= 13:58:03
+ Need at least 2 volumes for VADD command.                               
+  Please input volumes.                                                  
+
+ *** WARNING ***                         CP =      13.766   TIME= 13:58:25
+ Assembly SLOT_TOOLS is deleted.                                         
+
+ *** ERROR ***                           CP =      14.031   TIME= 13:58:26
+ Need at least 2 volumes for VADD command.                               
+  Please input volumes.                                                  
+
+ *** WARNING ***                         CP =      14.297   TIME= 13:58:38
+ Assembly SLOT_TOOLS is deleted.                                         
+
+ *** ERROR ***                           CP =      14.344   TIME= 13:58:38
+ Volume list to be subtracted is empty.                                  
+
+ *** ERROR ***                           CP =      14.484   TIME= 13:58:59
+ Component SLOT_TOOLS is not defined.                                    
+
+ *** WARNING ***                         CP =      14.688   TIME= 13:59:11
+ Assembly BEAM is deleted.                                               
+
+ *** WARNING ***                         CP =      14.734   TIME= 13:59:11
+ Assembly PLATE is deleted.                                              
+
+ *** ERROR ***                           CP =      14.859   TIME= 13:59:11
+ Component PLATE is not defined.                                         
+
+ *** ERROR ***                           CP =      15.141   TIME= 13:59:27
+ Volume 1 has invalid topology for mapped brick meshing.                 

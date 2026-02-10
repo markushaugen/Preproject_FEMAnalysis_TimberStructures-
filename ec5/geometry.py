@@ -5,21 +5,22 @@ from typing import List, Tuple
 
 @dataclass
 class Geometry:
-    beam_length: float
-    beam_height: float   # Y-direction in MAPDL
-    beam_width: float    # Z-direction in MAPDL (thickness)
-    plate_thickness: float
+    beam_length: float = 1000
+    beam_height: float =  200 # Y-direction in MAPDL
+    beam_width: float = 100   # Z-direction in MAPDL (thickness)
+    plate_thickness: float = 10.0
 
     slot_x1: float = 600
     slot_x2: float = 1000
     slot_y1: float = 30
     slot_y2: float = 170
     clearance_y: float = 2.0
-
+    plate_slot_clearance_y: float = 1.0  
+    dowels_from_right: bool = True
     num_dowels: int = 4
     dowel_diameter: float = 16
     dowel_spacing: float = 100
-    edge_distance: float = 650
+    edge_distance: float = 100
     row_offset: float = 0.0
 
     def validate(self) -> None:
@@ -71,13 +72,16 @@ class Geometry:
         )
 
     def dowel_positions(self) -> List[Tuple[float, float]]:
-        """
-        Returns (x, y) coordinates in millimetres for a single dowel row.
-        x: along the beam length (X)
-        y: along the beam height (Y)
-        Dowel axis is along Z with depth = beam_width.
-        """
-        x0 = self.edge_distance
         y = self.beam_height / 2.0 + self.row_offset
+
+        if self.dowels_from_right:
+            x_last = self.beam_length - self.edge_distance
+            x0 = x_last - (self.num_dowels - 1) * self.dowel_spacing
+        else:
+            x0 = self.edge_distance
+
         return [(x0 + i * self.dowel_spacing, y) for i in range(self.num_dowels)]
+
+
+
 
