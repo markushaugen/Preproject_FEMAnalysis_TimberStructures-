@@ -115,7 +115,100 @@ class MapdlExporter:
 
         return "\n".join(lines)
 
-    
+    def _plate_slots_block(self, geo: Geometry) -> str:
+        """
+        Cut slotted holes in the steel plate only.
+        Slot is elongated in Y by +/- plate_slot_clearance_y.
+        No diameter clearance: slot width = dowel diameter.
+        Robust version: no VADD and no SLOT_TOOLS component.
+        """
+        tp = geo.plate_thickness
+        if tp <= 0:
+            return "! no plate -> no slotted holes\n"
+
+        B = geo.beam_width
+        slot_z1 = B / 2.0 - tp / 2.0
+        slot_z2 = B / 2.0 + tp / 2.0
+
+        r = geo.dowel_diameter / 2.0
+        g = geo.plate_slot_clearance_y  # 1 mm
+
+        # Plate Y-range (same as plate volume creation)
+        cY = geo.clearance_y
+        plate_y1 = geo.slot_y1 + cY / 2.0
+        plate_y2 = geo.slot_y2 - cY / 2.0
+
+        lines: list[str] = []
+        lines += [
+            "! slotted holes in PLATE (elongated in Y only, robust boolean)",
+            "allsel,all",
+            "",
+        ]
+
+        for i, (x, y) in enumerate(geo.dowel_positions(), start=1):
+            y1 = y - g
+            y2 = y + g
+
+            # Helper: reselect plate by location (booleans can invalidate components)
+            # Plate is within slot_x1..slot_x2, plate_y1..plate_y2, slot_z1..slot_z2
+            reselect_plate = [
+                "vsel,all",
+                f"vsel,s,loc,x,{geo.slot_x1},{geo.slot_x2}",
+                f"vsel,r,loc,y,{plate_y1},{plate_y2}",
+                f"vsel,r,loc,z,{slot_z1},{slot_z2}",
+                "cm,PLATE,volu",  # redefine PLATE component to current plate volumes
+                "allsel,all",
+                "",
+            ]
+
+            lines += [
+                "CSYS,0",
+                "WPCSYS,-1",
+                f"WPOFFS,0,0,{slot_z1}",  # make CYL4 start at plate bottom in Z
+                "WPROTA,0,0,0",
+                "",
+                f"! --- cut slot {i} ---",
+                "! lower end circle tool",
+                f"CYL4,{x},{y1},{r},,,,{tp}",
+                "*get,vtool,volu,0,num,max",
+                "cmsel,s,PLATE",
+                "vsbv,all,vtool",
+                "allsel,all",
+                "vdele,vtool",
+                "allsel,all",
+                "",
+                "! upper end circle tool",
+                f"CYL4,{x},{y2},{r},,,,{tp}",
+                "*get,vtool,volu,0,num,max",
+                "cmsel,s,PLATE",
+                "vsbv,all,vtool",
+                "allsel,all",
+                "vdele,vtool",
+                "allsel,all",
+                "",
+                "! middle web tool (connect circles)",
+                f"block,{x-r},{x+r}, {y1},{y2}, {slot_z1},{slot_z2}",
+                "*get,vtool,volu,0,num,max",
+                "cmsel,s,PLATE",
+                "vsbv,all,vtool",
+                "allsel,all",
+                "vdele,vtool",
+                "allsel,all",
+                "",
+            ]
+
+            lines += reselect_plate
+
+        # Reset working plane offset
+        lines += [
+            "WPOFFS,0,0,0",
+            "allsel,all",
+            "",
+        ]
+
+        return "\n".join(lines)
+
+
 
     #Dowels
     def _dowels_block(self, geo: Geometry) -> str:
@@ -200,6 +293,7 @@ class MapdlExporter:
         blocks.append(self._element_block(et_id))
         blocks.append(self._beam_block(geo))
         blocks.append(self._slot_and_plate(geo))
+        blocks.append(self._plate_slots_block(geo)) 
         blocks.append(self._dowels_block(geo))
         blocks.append(self._assign_materials(mat_wood, mat_steel, et_id))
         blocks.append(self._mesh_block())

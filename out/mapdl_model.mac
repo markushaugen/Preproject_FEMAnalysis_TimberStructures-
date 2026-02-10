@@ -41,6 +41,172 @@ block,600,4000, 31.0,369.0, 66.0,74.0
 cm,PLATE,volu,vid_plate
 allsel,all
 
+! slotted holes in PLATE (elongated in Y only, robust boolean)
+allsel,all
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,66.0
+WPROTA,0,0,0
+
+! --- cut slot 1 ---
+! lower end circle tool
+CYL4,3540.0,199.0,6.0,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE
+vsbv,all,vtool
+allsel,all
+vdele,vtool
+allsel,all
+
+! upper end circle tool
+CYL4,3540.0,201.0,6.0,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE
+vsbv,all,vtool
+allsel,all
+vdele,vtool
+allsel,all
+
+! middle web tool (connect circles)
+block,3534.0,3546.0, 199.0,201.0, 66.0,74.0
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE
+vsbv,all,vtool
+allsel,all
+vdele,vtool
+allsel,all
+
+vsel,all
+vsel,s,loc,x,600,4000
+vsel,r,loc,y,31.0,369.0
+vsel,r,loc,z,66.0,74.0
+cm,PLATE,volu
+allsel,all
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,66.0
+WPROTA,0,0,0
+
+! --- cut slot 2 ---
+! lower end circle tool
+CYL4,3660.0,199.0,6.0,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE
+vsbv,all,vtool
+allsel,all
+vdele,vtool
+allsel,all
+
+! upper end circle tool
+CYL4,3660.0,201.0,6.0,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE
+vsbv,all,vtool
+allsel,all
+vdele,vtool
+allsel,all
+
+! middle web tool (connect circles)
+block,3654.0,3666.0, 199.0,201.0, 66.0,74.0
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE
+vsbv,all,vtool
+allsel,all
+vdele,vtool
+allsel,all
+
+vsel,all
+vsel,s,loc,x,600,4000
+vsel,r,loc,y,31.0,369.0
+vsel,r,loc,z,66.0,74.0
+cm,PLATE,volu
+allsel,all
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,66.0
+WPROTA,0,0,0
+
+! --- cut slot 3 ---
+! lower end circle tool
+CYL4,3780.0,199.0,6.0,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE
+vsbv,all,vtool
+allsel,all
+vdele,vtool
+allsel,all
+
+! upper end circle tool
+CYL4,3780.0,201.0,6.0,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE
+vsbv,all,vtool
+allsel,all
+vdele,vtool
+allsel,all
+
+! middle web tool (connect circles)
+block,3774.0,3786.0, 199.0,201.0, 66.0,74.0
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE
+vsbv,all,vtool
+allsel,all
+vdele,vtool
+allsel,all
+
+vsel,all
+vsel,s,loc,x,600,4000
+vsel,r,loc,y,31.0,369.0
+vsel,r,loc,z,66.0,74.0
+cm,PLATE,volu
+allsel,all
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,66.0
+WPROTA,0,0,0
+
+! --- cut slot 4 ---
+! lower end circle tool
+CYL4,3900.0,199.0,6.0,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE
+vsbv,all,vtool
+allsel,all
+vdele,vtool
+allsel,all
+
+! upper end circle tool
+CYL4,3900.0,201.0,6.0,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE
+vsbv,all,vtool
+allsel,all
+vdele,vtool
+allsel,all
+
+! middle web tool (connect circles)
+block,3894.0,3906.0, 199.0,201.0, 66.0,74.0
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE
+vsbv,all,vtool
+allsel,all
+vdele,vtool
+allsel,all
+
+vsel,all
+vsel,s,loc,x,600,4000
+vsel,r,loc,y,31.0,369.0
+vsel,r,loc,z,66.0,74.0
+cm,PLATE,volu
+allsel,all
+
+WPOFFS,0,0,0
+allsel,all
+
 ! dowels
 ! CYL4 is used with WP reset for robustness
 cmdele,DOWELS
@@ -49,7 +215,7 @@ CSYS,0
 WPCSYS,-1
 WPOFFS,0,0,0
 WPROTA,0,0,0
-CYL4,100.0,200.0,6.0,,,,140
+CYL4,3540.0,200.0,6.0,,,,140
 *get,vid_dowel_1,volu,0,num,max
 cm,DOWELS,volu,vid_dowel_1
 allsel,all
@@ -58,7 +224,7 @@ CSYS,0
 WPCSYS,-1
 WPOFFS,0,0,0
 WPROTA,0,0,0
-CYL4,220.0,200.0,6.0,,,,140
+CYL4,3660.0,200.0,6.0,,,,140
 *get,vid_dowel_2,volu,0,num,max
 cm,DOWELS,volu,vid_dowel_2
 allsel,all
@@ -67,7 +233,7 @@ CSYS,0
 WPCSYS,-1
 WPOFFS,0,0,0
 WPROTA,0,0,0
-CYL4,340.0,200.0,6.0,,,,140
+CYL4,3780.0,200.0,6.0,,,,140
 *get,vid_dowel_3,volu,0,num,max
 cm,DOWELS,volu,vid_dowel_3
 allsel,all
@@ -76,7 +242,7 @@ CSYS,0
 WPCSYS,-1
 WPOFFS,0,0,0
 WPROTA,0,0,0
-CYL4,460.0,200.0,6.0,,,,140
+CYL4,3900.0,200.0,6.0,,,,140
 *get,vid_dowel_4,volu,0,num,max
 cm,DOWELS,volu,vid_dowel_4
 allsel,all

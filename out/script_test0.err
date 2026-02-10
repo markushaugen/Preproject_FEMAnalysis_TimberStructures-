@@ -1,0 +1,43 @@
+/COM,ANSYS RELEASE 2025 R2           BUILD 25.2      UP20250519       14:09:14
+
+ *** WARNING ***                         CP =       3.656   TIME= 14:09:39
+ Unselected volume 2.                                                    
+
+ *** WARNING ***                         CP =       3.891   TIME= 14:09:40
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =       4.109   TIME= 14:09:40
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =       4.250   TIME= 14:09:40
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =       4.297   TIME= 14:09:40
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =       4.328   TIME= 14:09:40
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =       4.359   TIME= 14:09:40
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =       4.406   TIME= 14:09:40
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =       4.453   TIME= 14:09:40
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =       4.469   TIME= 14:09:40
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =       4.516   TIME= 14:09:40
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =       4.547   TIME= 14:09:41
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =       4.594   TIME= 14:09:41
+ Unselected volume 3.                                                    
+
+ *** ERROR ***                           CP =       4.672   TIME= 14:09:41
+ Volume 3 has invalid topology for mapped brick meshing.                 
