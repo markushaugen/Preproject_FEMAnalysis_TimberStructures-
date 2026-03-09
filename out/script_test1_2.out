@@ -62,8 +62,6 @@
      
  Point Releases and Patches installed:   
      
- Granta EduPack 2025 R2  
- Ansys, Inc. License Manager 2025 R2 
  Discovery (full install) 2025 R2
  Core WB Files 2025 R2   
  Sound - SAS 2025 R2 
@@ -119,6 +117,8 @@
  Sherlock 2025 R2
  Electromagnetics Suite 2025 R2  
  Electromagnetics RSM 2025 R2
+ Ansys, Inc. License Manager 2025 R2 
+ Granta EduPack 2025 R2  
 
 
           *****  MAPDL COMMAND LINE ARGUMENTS  *****
@@ -135,12 +135,12 @@
   INITIAL DIRECTORY = \\tsclient\C\Users\markunh\Documents\Projects\Preproject_FEMAnalysis_TimberStructures--1\out
 
  RELEASE= 2025 R2              BUILD= 25.2      UP20250519   VERSION=WINDOWS x64 
- CURRENT JOBNAME=script_test1_2  14:11:53  FEB 10, 2026 CP=      0.156
+ CURRENT JOBNAME=script_test1_2  09:31:37  FEB 18, 2026 CP=      2.312
 
 
 
  NUMBER OF WARNING MESSAGES ENCOUNTERED=          0
- NUMBER OF ERROR   MESSAGES ENCOUNTERED=          2
+ NUMBER OF ERROR   MESSAGES ENCOUNTERED=          0
 
 
  *-----------------------------------------------------------------------------*
@@ -158,7 +158,7 @@
  |                                                                             |
  |-----------------------------------------------------------------------------|
  |                                                                             |
- |        CP Time      (sec) =          0.688       Time  =  14:23:03          |
- |        Elapsed Time (sec) =        675.000       Date  =  02/10/2026        |
+ |        CP Time      (sec) =          2.672       Time  =  09:31:57          |
+ |        Elapsed Time (sec) =         29.000       Date  =  02/18/2026        |
  |                                                                             |
  *-----------------------------------------------------------------------------*

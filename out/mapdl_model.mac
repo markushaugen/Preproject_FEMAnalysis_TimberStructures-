@@ -1,17 +1,17 @@
 /PREP7
 ! timber material
-mp,ex,1,11000000000.0
-mp,ey,1,370000000.0
-mp,ez,1,370000000.0
+mp,ex,1,11000.0
+mp,ey,1,370.0
+mp,ez,1,370.0
 mp,prxy,1,0.35
 mp,pryz,1,0.35
 mp,prxz,1,0.35
-mp,gxy,1,690000000.0
-mp,gyz,1,552000000.0
-mp,gxz,1,552000000.0
+mp,gxy,1,690.0
+mp,gyz,1,552.0
+mp,gxz,1,552.0
 
 ! steel material
-mp,ex,2,210e9
+mp,ex,2,210000
 mp,prxy,2,0.3
 
 ! element type
@@ -24,184 +24,236 @@ cm,BEAM,volu,vid_beam
 allsel,all
 
 ! slot and steel plate
-! create slot volume
 block,600,4000, 30,370, 66.0,74.0
 *get,vid_slot,volu,0,num,max
-
-! subtract slot from BEAM
 cmsel,s,BEAM
 vsbv,all,vid_slot
+cm,BEAM,volu
 allsel,all
 vdele,vid_slot
-nummrg,all
+allsel,all
 
-! create steel plate volume
 block,600,4000, 31.0,369.0, 66.0,74.0
 *get,vid_plate,volu,0,num,max
 cm,PLATE,volu,vid_plate
 allsel,all
 
-! slotted holes in PLATE (elongated in Y only, robust boolean)
+! round holes in BEAM for dowels (exact diameter)
 allsel,all
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,0
+WPROTA,0,0,0
+
+CYL4,3540.0,200.0,8.0,,,,140
+*get,vhole,volu,0,num,max
+
+cmsel,s,BEAM
+vsbv,all,vhole
+cm,BEAM,volu
+allsel,all
+vdele,vhole
+allsel,all
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,0
+WPROTA,0,0,0
+
+CYL4,3660.0,200.0,8.0,,,,140
+*get,vhole,volu,0,num,max
+
+cmsel,s,BEAM
+vsbv,all,vhole
+cm,BEAM,volu
+allsel,all
+vdele,vhole
+allsel,all
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,0
+WPROTA,0,0,0
+
+CYL4,3780.0,200.0,8.0,,,,140
+*get,vhole,volu,0,num,max
+
+cmsel,s,BEAM
+vsbv,all,vhole
+cm,BEAM,volu
+allsel,all
+vdele,vhole
+allsel,all
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,0
+WPROTA,0,0,0
+
+CYL4,3900.0,200.0,8.0,,,,140
+*get,vhole,volu,0,num,max
+
+cmsel,s,BEAM
+vsbv,all,vhole
+cm,BEAM,volu
+allsel,all
+vdele,vhole
+allsel,all
+
+! slotted holes in PLATE (elongated in Y only)
+allsel,all
+
+allsel,all
+cmsel,s,PLATE
 
 CSYS,0
 WPCSYS,-1
 WPOFFS,0,0,66.0
 WPROTA,0,0,0
 
-! --- cut slot 1 ---
-! lower end circle tool
-CYL4,3540.0,199.0,6.0,,,,8
+CYL4,3540.0,199.0,8.0,,,,8
 *get,vtool,volu,0,num,max
 cmsel,s,PLATE
 vsbv,all,vtool
-allsel,all
-vdele,vtool
-allsel,all
-
-! upper end circle tool
-CYL4,3540.0,201.0,6.0,,,,8
-*get,vtool,volu,0,num,max
-cmsel,s,PLATE
-vsbv,all,vtool
-allsel,all
-vdele,vtool
-allsel,all
-
-! middle web tool (connect circles)
-block,3534.0,3546.0, 199.0,201.0, 66.0,74.0
-*get,vtool,volu,0,num,max
-cmsel,s,PLATE
-vsbv,all,vtool
-allsel,all
-vdele,vtool
-allsel,all
-
-vsel,all
-vsel,s,loc,x,600,4000
-vsel,r,loc,y,31.0,369.0
-vsel,r,loc,z,66.0,74.0
 cm,PLATE,volu
 allsel,all
+vdele,vtool
+allsel,all
+
+CYL4,3540.0,201.0,8.0,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE
+vsbv,all,vtool
+cm,PLATE,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+block,3532.0,3548.0, 199.0,201.0, 66.0,74.0
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE
+vsbv,all,vtool
+cm,PLATE,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+WPOFFS,0,0,0
+allsel,all
+
+allsel,all
+cmsel,s,PLATE
 
 CSYS,0
 WPCSYS,-1
 WPOFFS,0,0,66.0
 WPROTA,0,0,0
 
-! --- cut slot 2 ---
-! lower end circle tool
-CYL4,3660.0,199.0,6.0,,,,8
+CYL4,3660.0,199.0,8.0,,,,8
 *get,vtool,volu,0,num,max
 cmsel,s,PLATE
 vsbv,all,vtool
-allsel,all
-vdele,vtool
-allsel,all
-
-! upper end circle tool
-CYL4,3660.0,201.0,6.0,,,,8
-*get,vtool,volu,0,num,max
-cmsel,s,PLATE
-vsbv,all,vtool
-allsel,all
-vdele,vtool
-allsel,all
-
-! middle web tool (connect circles)
-block,3654.0,3666.0, 199.0,201.0, 66.0,74.0
-*get,vtool,volu,0,num,max
-cmsel,s,PLATE
-vsbv,all,vtool
-allsel,all
-vdele,vtool
-allsel,all
-
-vsel,all
-vsel,s,loc,x,600,4000
-vsel,r,loc,y,31.0,369.0
-vsel,r,loc,z,66.0,74.0
 cm,PLATE,volu
 allsel,all
+vdele,vtool
+allsel,all
+
+CYL4,3660.0,201.0,8.0,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE
+vsbv,all,vtool
+cm,PLATE,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+block,3652.0,3668.0, 199.0,201.0, 66.0,74.0
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE
+vsbv,all,vtool
+cm,PLATE,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+WPOFFS,0,0,0
+allsel,all
+
+allsel,all
+cmsel,s,PLATE
 
 CSYS,0
 WPCSYS,-1
 WPOFFS,0,0,66.0
 WPROTA,0,0,0
 
-! --- cut slot 3 ---
-! lower end circle tool
-CYL4,3780.0,199.0,6.0,,,,8
+CYL4,3780.0,199.0,8.0,,,,8
 *get,vtool,volu,0,num,max
 cmsel,s,PLATE
 vsbv,all,vtool
-allsel,all
-vdele,vtool
-allsel,all
-
-! upper end circle tool
-CYL4,3780.0,201.0,6.0,,,,8
-*get,vtool,volu,0,num,max
-cmsel,s,PLATE
-vsbv,all,vtool
-allsel,all
-vdele,vtool
-allsel,all
-
-! middle web tool (connect circles)
-block,3774.0,3786.0, 199.0,201.0, 66.0,74.0
-*get,vtool,volu,0,num,max
-cmsel,s,PLATE
-vsbv,all,vtool
-allsel,all
-vdele,vtool
-allsel,all
-
-vsel,all
-vsel,s,loc,x,600,4000
-vsel,r,loc,y,31.0,369.0
-vsel,r,loc,z,66.0,74.0
 cm,PLATE,volu
 allsel,all
+vdele,vtool
+allsel,all
+
+CYL4,3780.0,201.0,8.0,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE
+vsbv,all,vtool
+cm,PLATE,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+block,3772.0,3788.0, 199.0,201.0, 66.0,74.0
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE
+vsbv,all,vtool
+cm,PLATE,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+WPOFFS,0,0,0
+allsel,all
+
+allsel,all
+cmsel,s,PLATE
 
 CSYS,0
 WPCSYS,-1
 WPOFFS,0,0,66.0
 WPROTA,0,0,0
 
-! --- cut slot 4 ---
-! lower end circle tool
-CYL4,3900.0,199.0,6.0,,,,8
+CYL4,3900.0,199.0,8.0,,,,8
 *get,vtool,volu,0,num,max
 cmsel,s,PLATE
 vsbv,all,vtool
-allsel,all
-vdele,vtool
-allsel,all
-
-! upper end circle tool
-CYL4,3900.0,201.0,6.0,,,,8
-*get,vtool,volu,0,num,max
-cmsel,s,PLATE
-vsbv,all,vtool
-allsel,all
-vdele,vtool
-allsel,all
-
-! middle web tool (connect circles)
-block,3894.0,3906.0, 199.0,201.0, 66.0,74.0
-*get,vtool,volu,0,num,max
-cmsel,s,PLATE
-vsbv,all,vtool
-allsel,all
-vdele,vtool
-allsel,all
-
-vsel,all
-vsel,s,loc,x,600,4000
-vsel,r,loc,y,31.0,369.0
-vsel,r,loc,z,66.0,74.0
 cm,PLATE,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+CYL4,3900.0,201.0,8.0,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE
+vsbv,all,vtool
+cm,PLATE,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+block,3892.0,3908.0, 199.0,201.0, 66.0,74.0
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE
+vsbv,all,vtool
+cm,PLATE,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+WPOFFS,0,0,0
 allsel,all
 
 WPOFFS,0,0,0
@@ -211,55 +263,242 @@ allsel,all
 ! CYL4 is used with WP reset for robustness
 cmdele,DOWELS
 
-CSYS,0
-WPCSYS,-1
-WPOFFS,0,0,0
-WPROTA,0,0,0
-CYL4,3540.0,200.0,6.0,,,,140
-*get,vid_dowel_1,volu,0,num,max
-cm,DOWELS,volu,vid_dowel_1
+allsel,all
+csys,0
+wpcsys,0
+wpoffs,0,0,0
+
+cyl4,3540.0,200.0,6.0,,,0,140
+*get,vid_dowel,volu,0,num,max
+cm,DOWEL1,volu,vid_dowel
+
+*if,1,eq,1,then
+  vsel,s,volu,,vid_dowel
+  cm,DOWELS,volu
+*else
+  cmsel,s,DOWELS
+  vsel,a,volu,,vid_dowel
+  cm,DOWELS,volu
+*endif
 allsel,all
 
-CSYS,0
-WPCSYS,-1
-WPOFFS,0,0,0
-WPROTA,0,0,0
-CYL4,3660.0,200.0,6.0,,,,140
-*get,vid_dowel_2,volu,0,num,max
-cm,DOWELS,volu,vid_dowel_2
+allsel,all
+cmdele,BEAM
+cmdele,PLATE
+cmdele,DOWELS
+
+vsel,s,volu,,1
+cm,BEAM,volu
 allsel,all
 
-CSYS,0
-WPCSYS,-1
-WPOFFS,0,0,0
-WPROTA,0,0,0
-CYL4,3780.0,200.0,6.0,,,,140
-*get,vid_dowel_3,volu,0,num,max
-cm,DOWELS,volu,vid_dowel_3
+vsel,s,volu,,2
+cm,PLATE,volu
 allsel,all
 
-CSYS,0
-WPCSYS,-1
-WPOFFS,0,0,0
-WPROTA,0,0,0
-CYL4,3900.0,200.0,6.0,,,,140
-*get,vid_dowel_4,volu,0,num,max
-cm,DOWELS,volu,vid_dowel_4
+vsel,s,volu,,3,6
+cm,DOWELS,volu
 allsel,all
 
-! material assignment: all wood, plate overridden to steel
+! material assignment by components (robust)
 type,1
-vsel,all
+! BEAM -> wood
+cmsel,s,BEAM
 vatt,1,,1
+allsel,all
 
+! PLATE -> steel
 cmsel,s,PLATE
 vatt,2,,1
+allsel,all
 
+! DOWELS -> steel
+cmsel,s,DOWELS
+vatt,2,,1
 allsel,all
 
 ! meshing
-esize,100.0
+mshape,1,3d
+mshkey,0
+esize,30.0
 vsel,all
 vmesh,all
 allsel,all
+*get,nn,node,0,count
+*get,ne,elem,0,count
+/com, NODE=%nn%  ELEM=%ne%
 finish
+
+/prep7
+! ---------------- CONTACT (BONDED v1) ----------------
+allsel,all
+
+! Contact element types
+et,10,170      ! TARGE170
+et,11,174      ! CONTA174
+! Bonded contact (MPC-style bonded).
+keyopt,11,12,5
+keyopt,11,4,0
+
+! Real constants set (defaults are ok for bonded, but keep a set id)
+r,11
+
+! Plate-Beam bonded at z=66.0
+allsel,all
+
+! TARGET on PLATE face
+cmsel,s,PLATE
+nsla,s,1
+nsel,r,loc,z,66.0
+nsel,r,loc,x,600,4000
+nsel,r,loc,y,30,370
+type,10
+real,11
+esurf
+
+! CONTACT on BEAM face
+allsel,all
+cmsel,s,BEAM
+nsla,s,1
+nsel,r,loc,z,66.0
+nsel,r,loc,x,600,4000
+nsel,r,loc,y,30,370
+type,11
+real,11
+esurf
+allsel,all
+
+! Plate-Beam bonded at z=74.0
+allsel,all
+
+! TARGET on PLATE face
+cmsel,s,PLATE
+nsla,s,1
+nsel,r,loc,z,74.0
+nsel,r,loc,x,600,4000
+nsel,r,loc,y,30,370
+type,10
+real,11
+esurf
+
+! CONTACT on BEAM face
+allsel,all
+cmsel,s,BEAM
+nsla,s,1
+nsel,r,loc,z,74.0
+nsel,r,loc,x,600,4000
+nsel,r,loc,y,30,370
+type,11
+real,11
+esurf
+allsel,all
+
+! Dowel 1 bonded to BEAM hole (cylindrical selection)
+allsel,all
+
+! Local cylindrical CSYS around dowel center (x=3540.0, y=200.0)
+local,100,1,3540.0,200.0,0
+csys,100
+
+! TARGET on DOWEL surface (R = r_dowel)
+cmsel,s,DOWEL1
+nsla,s,1
+nsel,r,loc,x,-3.0,15.0
+type,10
+real,11
+esurf
+
+! CONTACT on BEAM hole surface (R = r_beam_hole)
+allsel,all
+cmsel,s,BEAM
+nsla,s,1
+nsel,r,loc,x,-1.0,17.0
+type,11
+real,11
+esurf
+
+csys,0
+allsel,all
+
+! Dowel 2 bonded to BEAM hole (cylindrical selection)
+allsel,all
+
+! Local cylindrical CSYS around dowel center (x=3660.0, y=200.0)
+local,100,1,3660.0,200.0,0
+csys,100
+
+! TARGET on DOWEL surface (R = r_dowel)
+cmsel,s,DOWEL2
+nsla,s,1
+nsel,r,loc,x,-3.0,15.0
+type,10
+real,11
+esurf
+
+! CONTACT on BEAM hole surface (R = r_beam_hole)
+allsel,all
+cmsel,s,BEAM
+nsla,s,1
+nsel,r,loc,x,-1.0,17.0
+type,11
+real,11
+esurf
+
+csys,0
+allsel,all
+
+! Dowel 3 bonded to BEAM hole (cylindrical selection)
+allsel,all
+
+! Local cylindrical CSYS around dowel center (x=3780.0, y=200.0)
+local,100,1,3780.0,200.0,0
+csys,100
+
+! TARGET on DOWEL surface (R = r_dowel)
+cmsel,s,DOWEL3
+nsla,s,1
+nsel,r,loc,x,-3.0,15.0
+type,10
+real,11
+esurf
+
+! CONTACT on BEAM hole surface (R = r_beam_hole)
+allsel,all
+cmsel,s,BEAM
+nsla,s,1
+nsel,r,loc,x,-1.0,17.0
+type,11
+real,11
+esurf
+
+csys,0
+allsel,all
+
+! Dowel 4 bonded to BEAM hole (cylindrical selection)
+allsel,all
+
+! Local cylindrical CSYS around dowel center (x=3900.0, y=200.0)
+local,100,1,3900.0,200.0,0
+csys,100
+
+! TARGET on DOWEL surface (R = r_dowel)
+cmsel,s,DOWEL4
+nsla,s,1
+nsel,r,loc,x,-3.0,15.0
+type,10
+real,11
+esurf
+
+! CONTACT on BEAM hole surface (R = r_beam_hole)
+allsel,all
+cmsel,s,BEAM
+nsla,s,1
+nsel,r,loc,x,-1.0,17.0
+type,11
+real,11
+esurf
+
+csys,0
+allsel,all
+
+! -----------------------------------------------------
+allsel,all

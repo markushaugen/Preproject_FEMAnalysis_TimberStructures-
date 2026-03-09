@@ -10,39 +10,46 @@ from .design_values import OrthoElastic, TimberStrength
 MATERIALS_FALLBACK: Dict[str, Dict[str, object]] = {
     "C24": {
         "elastic": OrthoElastic(
-            EX=11_000e6, EY=370e6, EZ=370e6,
+            EX=11000, EY=370, EZ=370,
             PRXY=0.35, PRYZ=0.35, PRXZ=0.35,
-            GXY=690e6, GYZ=550e6, GXZ=550e6,
+            GXY=690, GYZ=550, GXZ=550,
         ),
         "strength": TimberStrength(
-            fc0k=21e6, ft0k=14e6, ft90k=0.4e6,
-            fc90k=2.5e6, fmk=24e6, frk=4.0e6,
+            fc0k=21, ft0k=14, ft90k=0.4,
+            fc90k=2.5, fmk=24, frk=4.0,
         ),
     }
 }
 
 
 def _from_row(r: Dict[str, str]) -> Tuple[OrthoElastic, TimberStrength]:
+    # Convert from Pa (N/m^2) to N/mm^2 (MPa) for mm-N unit system
+    PA_TO_MPA = 1e-6
+
     elastic = OrthoElastic(
-        EX=float(r["E0mean"]),
-        EY=float(r["E90mean"]),
-        EZ=float(r["E90mean"]),
+        EX=float(r["E0mean"]) * PA_TO_MPA,
+        EY=float(r["E90mean"]) * PA_TO_MPA,
+        EZ=float(r["E90mean"]) * PA_TO_MPA,
         PRXY=float(r["nu"]),
         PRYZ=float(r["nu"]),
         PRXZ=float(r["nu"]),
-        GXY=float(r["Gmean"]),
-        GYZ=float(r["Gmean"]) * 0.8,
-        GXZ=float(r["Gmean"]) * 0.8,
+        GXY=float(r["Gmean"]) * PA_TO_MPA,
+        GYZ=float(r["Gmean"]) * 0.8 * PA_TO_MPA,
+        GXZ=float(r["Gmean"]) * 0.8 * PA_TO_MPA,
     )
+
     strength = TimberStrength(
-        fc0k=float(r["fc0k"]),
-        ft0k=float(r["ft0k"]),
-        ft90k=float(r["ft90k"]),
-        fc90k=float(r["fc90k"]),
-        fmk=float(r["fmk"]),
-        frk=float(r["frk"]),
+        fc0k=float(r["fc0k"]) * PA_TO_MPA,
+        ft0k=float(r["ft0k"]) * PA_TO_MPA,
+        ft90k=float(r["ft90k"]) * PA_TO_MPA,
+        fc90k=float(r["fc90k"]) * PA_TO_MPA,
+        fmk=float(r["fmk"]) * PA_TO_MPA,
+        frk=float(r["frk"]) * PA_TO_MPA,
     )
+
     return elastic, strength
+
+
 
 
 def load_catalog(csv_path: str = "data/timber_classes.csv") -> Dict[str, Tuple[OrthoElastic, TimberStrength]]:
@@ -56,6 +63,8 @@ def load_catalog(csv_path: str = "data/timber_classes.csv") -> Dict[str, Tuple[O
     if path.exists():
         with open(path, newline="") as f:
             reader = csv.DictReader(f)
+            print("CSV fieldnames:", reader.fieldnames)
+
             for r in reader:
                 db[r["class"]] = _from_row(r)
 
