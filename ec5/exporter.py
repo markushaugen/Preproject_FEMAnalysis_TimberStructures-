@@ -32,7 +32,7 @@ class MapdlExporter:
     def _material_block_steel(self, mat_id: int) -> str:
         return "\n".join([
             "! steel material",
-            f"mp,ex,{mat_id},210e9",
+            f"mp,ex,{mat_id},210000",
             f"mp,prxy,{mat_id},0.3",
             "",
         ])
@@ -68,8 +68,6 @@ class MapdlExporter:
         if tp <= 0:
             return "! no plate\n"
 
-        L = geo.beam_length
-        H = geo.beam_height
         B = geo.beam_width
 
         slot_x1 = geo.slot_x1
@@ -78,34 +76,28 @@ class MapdlExporter:
         slot_y2 = geo.slot_y2
 
         cY = geo.clearance_y
-        plate_y1 = slot_y1 + cY/2.0
-        plate_y2 = slot_y2 - cY/2.0
+        plate_y1 = slot_y1 + cY / 2.0
+        plate_y2 = slot_y2 - cY / 2.0
 
-        # Plate thickness centered in Z (beam width)
-        slot_z1 = B/2.0 - tp/2.0
-        slot_z2 = B/2.0 + tp/2.0
+        slot_z1 = B / 2.0 - tp / 2.0
+        slot_z2 = B / 2.0 + tp / 2.0
 
         lines = []
         lines.append("! slot and steel plate")
 
-        # slot tool volume
         lines += [
-            "! create slot volume",
             f"block,{slot_x1},{slot_x2}, {slot_y1},{slot_y2}, {slot_z1},{slot_z2}",
             "*get,vid_slot,volu,0,num,max",
-            "",
-            "! subtract slot from BEAM",
             "cmsel,s,BEAM",
             "vsbv,all,vid_slot",
+            "cm,BEAM,volu",
             "allsel,all",
             "vdele,vid_slot",
-            "nummrg,all",
+            "allsel,all",
             "",
         ]
 
-        # plate volume (same X,Z but reduced Y to create clearance)
         lines += [
-            "! create steel plate volume",
             f"block,{slot_x1},{slot_x2}, {plate_y1},{plate_y2}, {slot_z1},{slot_z2}",
             "*get,vid_plate,volu,0,num,max",
             "cm,PLATE,volu,vid_plate",
@@ -115,13 +107,9 @@ class MapdlExporter:
 
         return "\n".join(lines)
 
+
+
     def _plate_slots_block(self, geo: Geometry) -> str:
-        """
-        Cut slotted holes in the steel plate only.
-        Slot is elongated in Y by +/- plate_slot_clearance_y.
-        No diameter clearance: slot width = dowel diameter.
-        Robust version: no VADD and no SLOT_TOOLS component.
-        """
         tp = geo.plate_thickness
         if tp <= 0:
             return "! no plate -> no slotted holes\n"
@@ -130,81 +118,121 @@ class MapdlExporter:
         slot_z1 = B / 2.0 - tp / 2.0
         slot_z2 = B / 2.0 + tp / 2.0
 
-        r = geo.dowel_diameter / 2.0
+        r_plate_slot = geo.dowel_diameter / 2.0 + geo.plate_hole_clearance
         g = geo.plate_slot_clearance_y  # 1 mm
-
-        # Plate Y-range (same as plate volume creation)
-        cY = geo.clearance_y
-        plate_y1 = geo.slot_y1 + cY / 2.0
-        plate_y2 = geo.slot_y2 - cY / 2.0
-
+       
         lines: list[str] = []
         lines += [
-            "! slotted holes in PLATE (elongated in Y only, robust boolean)",
+            "! slotted holes in PLATE (elongated in Y only)",
             "allsel,all",
             "",
         ]
 
-        for i, (x, y) in enumerate(geo.dowel_positions(), start=1):
+        for (x, y) in geo.dowel_positions():
             y1 = y - g
             y2 = y + g
 
-            # Helper: reselect plate by location (booleans can invalidate components)
-            # Plate is within slot_x1..slot_x2, plate_y1..plate_y2, slot_z1..slot_z2
-            reselect_plate = [
-                "vsel,all",
-                f"vsel,s,loc,x,{geo.slot_x1},{geo.slot_x2}",
-                f"vsel,r,loc,y,{plate_y1},{plate_y2}",
-                f"vsel,r,loc,z,{slot_z1},{slot_z2}",
-                "cm,PLATE,volu",  # redefine PLATE component to current plate volumes
+            lines += [
+                "allsel,all",
+                "cmsel,s,PLATE",
+                "",
+                "CSYS,0",
+                "WPCSYS,-1",
+                f"WPOFFS,0,0,{slot_z1}",
+                "WPROTA,0,0,0",
+                "",
+            ]
+
+            # lower end circle tool
+            lines += [
+                f"CYL4,{x},{y1},{r_plate_slot},,,,{tp}",
+                "*get,vtool,volu,0,num,max",
+                "cmsel,s,PLATE",
+                "vsbv,all,vtool",
+                "cm,PLATE,volu",
+                "allsel,all",
+                "vdele,vtool",
+                "allsel,all",
+                "",
+            ]
+
+            # upper end circle tool
+            lines += [
+                f"CYL4,{x},{y2},{r_plate_slot},,,,{tp}",
+                "*get,vtool,volu,0,num,max",
+                "cmsel,s,PLATE",
+                "vsbv,all,vtool",
+                "cm,PLATE,volu",
+                "allsel,all",
+                "vdele,vtool",
+                "allsel,all",
+                "",
+            ]
+
+            # middle web tool
+            lines += [
+                f"block,{x-r_plate_slot},{x+r_plate_slot}, {y1},{y2}, {slot_z1},{slot_z2}",
+                "*get,vtool,volu,0,num,max",
+                "cmsel,s,PLATE",
+                "vsbv,all,vtool",
+                "cm,PLATE,volu",
+                "allsel,all",
+                "vdele,vtool",
                 "allsel,all",
                 "",
             ]
 
             lines += [
-                "CSYS,0",
-                "WPCSYS,-1",
-                f"WPOFFS,0,0,{slot_z1}",  # make CYL4 start at plate bottom in Z
-                "WPROTA,0,0,0",
-                "",
-                f"! --- cut slot {i} ---",
-                "! lower end circle tool",
-                f"CYL4,{x},{y1},{r},,,,{tp}",
-                "*get,vtool,volu,0,num,max",
-                "cmsel,s,PLATE",
-                "vsbv,all,vtool",
-                "allsel,all",
-                "vdele,vtool",
-                "allsel,all",
-                "",
-                "! upper end circle tool",
-                f"CYL4,{x},{y2},{r},,,,{tp}",
-                "*get,vtool,volu,0,num,max",
-                "cmsel,s,PLATE",
-                "vsbv,all,vtool",
-                "allsel,all",
-                "vdele,vtool",
-                "allsel,all",
-                "",
-                "! middle web tool (connect circles)",
-                f"block,{x-r},{x+r}, {y1},{y2}, {slot_z1},{slot_z2}",
-                "*get,vtool,volu,0,num,max",
-                "cmsel,s,PLATE",
-                "vsbv,all,vtool",
-                "allsel,all",
-                "vdele,vtool",
+                "WPOFFS,0,0,0",
                 "allsel,all",
                 "",
             ]
 
-            lines += reselect_plate
-
-        # Reset working plane offset
         lines += [
             "WPOFFS,0,0,0",
             "allsel,all",
             "",
         ]
+        return "\n".join(lines)
+
+
+
+    def _beam_holes_block(self, geo: Geometry) -> str:
+        """
+        Cut round dowel holes in the timber beam (exact dowel diameter, no clearance).
+        Holes go through full beam width in Z.
+        """
+        if not getattr(geo, "make_beam_holes", True):
+            return "! beam holes disabled\n"
+
+        r_beam_hole = geo.dowel_diameter / 2.0 + geo.beam_hole_clearance
+        B = geo.beam_width  # through-thickness in Z
+
+        lines: list[str] = []
+        lines += [
+            "! round holes in BEAM for dowels (exact diameter)",
+            "allsel,all",
+            "",
+        ]
+
+        for i, (x, y) in enumerate(geo.dowel_positions(), start=1):
+            lines += [
+                "CSYS,0",
+                "WPCSYS,-1",
+                "WPOFFS,0,0,0",
+                "WPROTA,0,0,0",
+                "",
+                f"CYL4,{x},{y},{r_beam_hole},,,,{B}",
+                "*get,vhole,volu,0,num,max",
+                "",
+                "cmsel,s,BEAM",
+                "vsbv,all,vhole",
+                "cm,BEAM,volu",
+                "allsel,all",
+                "vdele,vhole",
+                "allsel,all",
+                "",
+            ]
 
         return "\n".join(lines)
 
@@ -213,7 +241,7 @@ class MapdlExporter:
     #Dowels
     def _dowels_block(self, geo: Geometry) -> str:
         """Create dowel volumes using CYL4. Stores them in component DOWELS."""
-        r = geo.dowel_diameter / 2.0
+        r_dowel = geo.dowel_diameter / 2.0
         B = geo.beam_width  # depth in Z-direction
 
         lines: list[str] = []
@@ -221,38 +249,185 @@ class MapdlExporter:
         lines.append("! CYL4 is used with WP reset for robustness")
         lines.append("cmdele,DOWELS")  # safe if not existing in some versions; ok if ignored
         lines.append("")
-
+       
+        
         for i, (x, y) in enumerate(geo.dowel_positions(), start=1):
             lines.extend([
-                "CSYS,0",
-                "WPCSYS,-1",
-                "WPOFFS,0,0,0",
-                "WPROTA,0,0,0",
-                f"CYL4,{x},{y},{r},,,,{B}",
-                f"*get,vid_dowel_{i},volu,0,num,max",
-                f"cm,DOWELS,volu,vid_dowel_{i}",
+                "allsel,all",
+                "csys,0",
+                "wpcsys,0",
+                "wpoffs,0,0,0",
+                "",
+                f"cyl4,{x},{y},{r_dowel},,,0,{B}",   # <-- viktig: z1=0, z2=B
+                "*get,vid_dowel,volu,0,num,max",
+                f"cm,DOWEL{i},volu,vid_dowel",
+                "",
+                "*if," + str(i) + ",eq,1,then",
+                "  vsel,s,volu,,vid_dowel",
+                "  cm,DOWELS,volu",
+                "*else",
+                "  cmsel,s,DOWELS",
+                "  vsel,a,volu,,vid_dowel",
+                "  cm,DOWELS,volu",
+                "*endif",
                 "allsel,all",
                 "",
             ])
 
-        return "\n".join(lines)
+            return "\n".join(lines)
 
+    def _final_components_block(self) -> str:
+        return "\n".join([
+            "allsel,all",
+            "cmdele,BEAM",
+            "cmdele,PLATE",
+            "cmdele,DOWELS",
+            "",
+            "vsel,s,volu,,1",
+            "cm,BEAM,volu",
+            "allsel,all",
+            "",
+            "vsel,s,volu,,2",
+            "cm,PLATE,volu",
+            "allsel,all",
+            "",
+            "vsel,s,volu,,3,6",
+            "cm,DOWELS,volu",
+            "allsel,all",
+            "",
+        ])
+    
+    def _bonded_contact_block_v1(self, geo: Geometry) -> str:
+        """
+        Bonded contact (v1):
+        - Plate <-> Beam at slot Z faces
+        - Each Dowel <-> Beam hole at cylindrical surface
+        Assumes:
+        volu 1=BEAM, 2=PLATE, 3-6=DOWELS (your verified IDs)
+        components BEAM, PLATE, DOWEL1..DOWELn exist
+        """
+        tp = geo.plate_thickness
+        B = geo.beam_width
+        slot_z1 = B / 2.0 - tp / 2.0
+        slot_z2 = B / 2.0 + tp / 2.0
+
+        # Radii (must match what you used in geometry blocks)
+        r_dowel = geo.dowel_diameter / 2.0
+        r_beam_hole = geo.dowel_diameter / 2.0 + getattr(geo, "beam_hole_clearance", 0.0)
+
+        # Tolerance for node selection on radius (mm)
+        tol = max(0.2, 0.3 * self.element_size_mm)
+
+        lines: list[str] = []
+        lines += [
+            "/prep7",
+            "! ---------------- CONTACT (BONDED v1) ----------------",
+            "allsel,all",
+            "",
+            "! Contact element types",
+            "et,10,170      ! TARGE170",
+            "et,11,174      ! CONTA174",
+            "! Bonded contact (MPC-style bonded).",
+            "keyopt,11,12,5",
+            "keyopt,11,4,0",
+            "",
+            "! Real constants set (defaults are ok for bonded, but keep a set id)",
+            "r,11",
+            "",
+        ]
+
+        # --- A) PLATE <-> BEAM on slot Z faces (two sides) ---
+        # Target on PLATE (stiffer), Contact on BEAM
+        for z in (slot_z1, slot_z2):
+            lines += [
+                f"! Plate-Beam bonded at z={z}",
+                "allsel,all",
+                "",
+                "! TARGET on PLATE face",
+                "cmsel,s,PLATE",
+                "nsla,s,1",
+                f"nsel,r,loc,z,{z}",
+                f"nsel,r,loc,x,{geo.slot_x1},{geo.slot_x2}",
+                f"nsel,r,loc,y,{geo.slot_y1},{geo.slot_y2}",
+                "type,10",
+                "real,11",
+                "esurf",
+                "",
+                "! CONTACT on BEAM face",
+                "allsel,all",
+                "cmsel,s,BEAM",
+                "nsla,s,1",
+                f"nsel,r,loc,z,{z}",
+                f"nsel,r,loc,x,{geo.slot_x1},{geo.slot_x2}",
+                f"nsel,r,loc,y,{geo.slot_y1},{geo.slot_y2}",
+                "type,11",
+                "real,11",
+                "esurf",
+                "allsel,all",
+                "",
+            ]
+
+        # --- B) Each DOWEL <-> BEAM hole on cylindrical surface ---
+        # Target on DOWEL (steel), Contact on BEAM hole surface
+        for i, (x, y) in enumerate(geo.dowel_positions(), start=1):
+            lines += [
+                f"! Dowel {i} bonded to BEAM hole (cylindrical selection)",
+                "allsel,all",
+                "",
+                f"! Local cylindrical CSYS around dowel center (x={x}, y={y})",
+                f"local,100,1,{x},{y},0",
+                "csys,100",
+                "",
+                "! TARGET on DOWEL surface (R = r_dowel)",
+                f"cmsel,s,DOWEL{i}",
+                "nsla,s,1",
+                f"nsel,r,loc,x,{r_dowel - tol},{r_dowel + tol}",
+                "type,10",
+                "real,11",
+                "esurf",
+                "",
+                "! CONTACT on BEAM hole surface (R = r_beam_hole)",
+                "allsel,all",
+                "cmsel,s,BEAM",
+                "nsla,s,1",
+                f"nsel,r,loc,x,{r_beam_hole - tol},{r_beam_hole + tol}",
+                "type,11",
+                "real,11",
+                "esurf",
+                "",
+                "csys,0",
+                "allsel,all",
+                "",
+            ]
+
+        lines += [
+            "! -----------------------------------------------------",
+            "allsel,all",
+            "",
+        ]
+        return "\n".join(lines)
 
     # MATERIAL ASSIGNMENT
     def _assign_materials(self, mat_wood: int, mat_steel: int, et_id: int) -> str:
-        """
-        First give all volumes wood (MAT=mat_wood),
-        then override PLATE component to steel (MAT=mat_steel).
-        """
         return "\n".join([
-            "! material assignment: all wood, plate overridden to steel",
+            "! material assignment by components (robust)",
             f"type,{et_id}",
-            "vsel,all",
+
+            "! BEAM -> wood",
+            "cmsel,s,BEAM",
             f"vatt,{mat_wood},,{et_id}",
+            "allsel,all",
             "",
+
+            "! PLATE -> steel",
             "cmsel,s,PLATE",
             f"vatt,{mat_steel},,{et_id}",
+            "allsel,all",
             "",
+
+            "! DOWELS -> steel",
+            "cmsel,s,DOWELS",
+            f"vatt,{mat_steel},,{et_id}",
             "allsel,all",
             "",
         ])
@@ -264,14 +439,18 @@ class MapdlExporter:
         h = self.element_size_mm
         return "\n".join([
             "! meshing",
+            "mshape,1,3d",
+            "mshkey,0",
             f"esize,{h}",
             "vsel,all",
             "vmesh,all",
             "allsel,all",
+            "*get,nn,node,0,count",
+            "*get,ne,elem,0,count",
+            "/com, NODE=%nn%  ELEM=%ne%",
             "finish",
             "",
         ])
-
 
     # EXPORT
     def export_mapdl_model(
@@ -293,10 +472,13 @@ class MapdlExporter:
         blocks.append(self._element_block(et_id))
         blocks.append(self._beam_block(geo))
         blocks.append(self._slot_and_plate(geo))
+        blocks.append(self._beam_holes_block(geo)) 
         blocks.append(self._plate_slots_block(geo)) 
         blocks.append(self._dowels_block(geo))
+        blocks.append(self._final_components_block())
         blocks.append(self._assign_materials(mat_wood, mat_steel, et_id))
         blocks.append(self._mesh_block())
+        blocks.append(self._bonded_contact_block_v1(geo))
 
         Path(path).write_text("\n".join(blocks))
 

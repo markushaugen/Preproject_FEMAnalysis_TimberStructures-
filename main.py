@@ -31,6 +31,7 @@ def parse_args():
     p.add_argument("--d_dowel", type=float, default=12)
     p.add_argument("--s_dowel", type=float, default=120)
     p.add_argument("--a_edge", type=float, default=60)
+    p.add_argument("--mesh", type=float, default=50, help="Global element size in mm")
 
     return p.parse_args()
 
@@ -56,6 +57,9 @@ if __name__ == "__main__":
     elastic, strength = get_timber(args.cls)
     timber = TimberDesign(elastic=elastic, strength_char=strength,
                         service_class=sc_enum(args.sc))
+    
+    print("Timber EX (N/mm^2):", timber.elastic.EX)
+
     fd = timber.strengths_design(duration=dur_enum(args.dur))
 
     # Output strengths
@@ -155,7 +159,7 @@ if __name__ == "__main__":
 
     if args.mapdl:
         os.makedirs("out", exist_ok=True)
-        exporter = MapdlExporter(element_size_mm=100.0)
+        exporter = MapdlExporter(element_size_mm=args.mesh)
         mapdl_path = os.path.join("out", "mapdl_model.mac")
         exporter.export_mapdl_model(
             path=mapdl_path,

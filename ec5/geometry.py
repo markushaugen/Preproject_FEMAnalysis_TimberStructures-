@@ -16,12 +16,17 @@ class Geometry:
     slot_y2: float = 170
     clearance_y: float = 2.0
     plate_slot_clearance_y: float = 1.0  
+    beam_hole_clearance: float = 2.0
+    plate_hole_clearance: float = 2.0
     dowels_from_right: bool = True
     num_dowels: int = 4
-    dowel_diameter: float = 16
+    dowel_diameter: float = 20
     dowel_spacing: float = 100
     edge_distance: float = 100
     row_offset: float = 0.0
+    make_beam_holes: bool = True
+    make_plate_slots: bool = True
+
 
     def validate(self) -> None:
         # Basic sanity checks
