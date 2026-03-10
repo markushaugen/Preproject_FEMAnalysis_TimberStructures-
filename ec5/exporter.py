@@ -297,115 +297,115 @@ class MapdlExporter:
             "",
         ])
     
-    def _bonded_contact_block_v1(self, geo: Geometry) -> str:
-        """
-        Bonded contact (v1):
-        - Plate <-> Beam at slot Z faces
-        - Each Dowel <-> Beam hole at cylindrical surface
-        Assumes:
-        volu 1=BEAM, 2=PLATE, 3-6=DOWELS (your verified IDs)
-        components BEAM, PLATE, DOWEL1..DOWELn exist
-        """
-        tp = geo.plate_thickness
-        B = geo.beam_width
-        slot_z1 = B / 2.0 - tp / 2.0
-        slot_z2 = B / 2.0 + tp / 2.0
+    # def _bonded_contact_block_v1(self, geo: Geometry) -> str:
+    #     """
+    #     Bonded contact (v1):
+    #     - Plate <-> Beam at slot Z faces
+    #     - Each Dowel <-> Beam hole at cylindrical surface
+    #     Assumes:
+    #     volu 1=BEAM, 2=PLATE, 3-6=DOWELS (your verified IDs)
+    #     components BEAM, PLATE, DOWEL1..DOWELn exist
+    #     """
+        # tp = geo.plate_thickness
+        # B = geo.beam_width
+        # slot_z1 = B / 2.0 - tp / 2.0
+        # slot_z2 = B / 2.0 + tp / 2.0
 
-        # Radii (must match what you used in geometry blocks)
-        r_dowel = geo.dowel_diameter / 2.0
-        r_beam_hole = geo.dowel_diameter / 2.0 + getattr(geo, "beam_hole_clearance", 0.0)
+        # # Radii (must match what you used in geometry blocks)
+        # r_dowel = geo.dowel_diameter / 2.0
+        # r_beam_hole = geo.dowel_diameter / 2.0 + getattr(geo, "beam_hole_clearance", 0.0)
 
-        # Tolerance for node selection on radius (mm)
-        tol = max(0.2, 0.3 * self.element_size_mm)
+        # # Tolerance for node selection on radius (mm)
+        # tol = max(0.2, 0.3 * self.element_size_mm)
 
-        lines: list[str] = []
-        lines += [
-            "/prep7",
-            "! ---------------- CONTACT (BONDED v1) ----------------",
-            "allsel,all",
-            "",
-            "! Contact element types",
-            "et,10,170      ! TARGE170",
-            "et,11,174      ! CONTA174",
-            "! Bonded contact (MPC-style bonded).",
-            "keyopt,11,12,5",
-            "keyopt,11,4,0",
-            "",
-            "! Real constants set (defaults are ok for bonded, but keep a set id)",
-            "r,11",
-            "",
-        ]
+        # lines: list[str] = []
+        # lines += [
+        #     "/prep7",
+        #     "! ---------------- CONTACT (BONDED v1) ----------------",
+        #     "allsel,all",
+        #     "",
+        #     "! Contact element types",
+        #     "et,10,170      ! TARGE170",
+        #     "et,11,174      ! CONTA174",
+        #     "! Bonded contact (MPC-style bonded).",
+        #     "keyopt,11,12,5",
+        #     "keyopt,11,4,0",
+        #     "",
+        #     "! Real constants set (defaults are ok for bonded, but keep a set id)",
+        #     "r,11",
+        #     "",
+        # ]
 
-        # --- A) PLATE <-> BEAM on slot Z faces (two sides) ---
-        # Target on PLATE (stiffer), Contact on BEAM
-        for z in (slot_z1, slot_z2):
-            lines += [
-                f"! Plate-Beam bonded at z={z}",
-                "allsel,all",
-                "",
-                "! TARGET on PLATE face",
-                "cmsel,s,PLATE",
-                "nsla,s,1",
-                f"nsel,r,loc,z,{z}",
-                f"nsel,r,loc,x,{geo.slot_x1},{geo.slot_x2}",
-                f"nsel,r,loc,y,{geo.slot_y1},{geo.slot_y2}",
-                "type,10",
-                "real,11",
-                "esurf",
-                "",
-                "! CONTACT on BEAM face",
-                "allsel,all",
-                "cmsel,s,BEAM",
-                "nsla,s,1",
-                f"nsel,r,loc,z,{z}",
-                f"nsel,r,loc,x,{geo.slot_x1},{geo.slot_x2}",
-                f"nsel,r,loc,y,{geo.slot_y1},{geo.slot_y2}",
-                "type,11",
-                "real,11",
-                "esurf",
-                "allsel,all",
-                "",
-            ]
+        # # --- A) PLATE <-> BEAM on slot Z faces (two sides) ---
+        # # Target on PLATE (stiffer), Contact on BEAM
+        # for z in (slot_z1, slot_z2):
+        #     lines += [
+        #         f"! Plate-Beam bonded at z={z}",
+        #         "allsel,all",
+        #         "",
+        #         "! TARGET on PLATE face",
+        #         "cmsel,s,PLATE",
+        #         "nsla,s,1",
+        #         f"nsel,r,loc,z,{z}",
+        #         f"nsel,r,loc,x,{geo.slot_x1},{geo.slot_x2}",
+        #         f"nsel,r,loc,y,{geo.slot_y1},{geo.slot_y2}",
+        #         "type,10",
+        #         "real,11",
+        #         "esurf",
+        #         "",
+        #         "! CONTACT on BEAM face",
+        #         "allsel,all",
+        #         "cmsel,s,BEAM",
+        #         "nsla,s,1",
+        #         f"nsel,r,loc,z,{z}",
+        #         f"nsel,r,loc,x,{geo.slot_x1},{geo.slot_x2}",
+        #         f"nsel,r,loc,y,{geo.slot_y1},{geo.slot_y2}",
+        #         "type,11",
+        #         "real,11",
+        #         "esurf",
+        #         "allsel,all",
+        #         "",
+        #     ]
 
-        # --- B) Each DOWEL <-> BEAM hole on cylindrical surface ---
-        # Target on DOWEL (steel), Contact on BEAM hole surface
-        for i, (x, y) in enumerate(geo.dowel_positions(), start=1):
-            lines += [
-                f"! Dowel {i} bonded to BEAM hole (cylindrical selection)",
-                "allsel,all",
-                "",
-                f"! Local cylindrical CSYS around dowel center (x={x}, y={y})",
-                f"local,100,1,{x},{y},0",
-                "csys,100",
-                "",
-                "! TARGET on DOWEL surface (R = r_dowel)",
-                f"cmsel,s,DOWEL{i}",
-                "nsla,s,1",
-                f"nsel,r,loc,x,{r_dowel - tol},{r_dowel + tol}",
-                "type,10",
-                "real,11",
-                "esurf",
-                "",
-                "! CONTACT on BEAM hole surface (R = r_beam_hole)",
-                "allsel,all",
-                "cmsel,s,BEAM",
-                "nsla,s,1",
-                f"nsel,r,loc,x,{r_beam_hole - tol},{r_beam_hole + tol}",
-                "type,11",
-                "real,11",
-                "esurf",
-                "",
-                "csys,0",
-                "allsel,all",
-                "",
-            ]
+        # # --- B) Each DOWEL <-> BEAM hole on cylindrical surface ---
+        # # Target on DOWEL (steel), Contact on BEAM hole surface
+        # for i, (x, y) in enumerate(geo.dowel_positions(), start=1):
+        #     lines += [
+        #         f"! Dowel {i} bonded to BEAM hole (cylindrical selection)",
+        #         "allsel,all",
+        #         "",
+        #         f"! Local cylindrical CSYS around dowel center (x={x}, y={y})",
+        #         f"local,100,1,{x},{y},0",
+        #         "csys,100",
+        #         "",
+        #         "! TARGET on DOWEL surface (R = r_dowel)",
+        #         f"cmsel,s,DOWEL{i}",
+        #         "nsla,s,1",
+        #         f"nsel,r,loc,x,{r_dowel - tol},{r_dowel + tol}",
+        #         "type,10",
+        #         "real,11",
+        #         "esurf",
+        #         "",
+        #         "! CONTACT on BEAM hole surface (R = r_beam_hole)",
+        #         "allsel,all",
+        #         "cmsel,s,BEAM",
+        #         "nsla,s,1",
+        #         f"nsel,r,loc,x,{r_beam_hole - tol},{r_beam_hole + tol}",
+        #         "type,11",
+        #         "real,11",
+        #         "esurf",
+        #         "",
+        #         "csys,0",
+        #         "allsel,all",
+        #         "",
+        #     ]
 
-        lines += [
-            "! -----------------------------------------------------",
-            "allsel,all",
-            "",
-        ]
-        return "\n".join(lines)
+        # lines += [
+        #     "! -----------------------------------------------------",
+        #     "allsel,all",
+        #     "",
+        # ]
+        # return "\n".join(lines)
 
     # MATERIAL ASSIGNMENT
     def _assign_materials(self, mat_wood: int, mat_steel: int, et_id: int) -> str:
@@ -478,7 +478,7 @@ class MapdlExporter:
         blocks.append(self._final_components_block())
         blocks.append(self._assign_materials(mat_wood, mat_steel, et_id))
         blocks.append(self._mesh_block())
-        blocks.append(self._bonded_contact_block_v1(geo))
+        #blocks.append(self._bonded_contact_block_v1(geo))
 
         Path(path).write_text("\n".join(blocks))
 
