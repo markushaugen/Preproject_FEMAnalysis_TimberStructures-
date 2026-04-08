@@ -86,16 +86,17 @@ class MapdlExporter:
         lines.append("! slot and steel plate")
 
         lines += [
-            f"block,{slot_x1},{slot_x2}, {slot_y1},{slot_y2}, {slot_z1},{slot_z2}",
-            "*get,vid_slot,volu,0,num,max",
-            "cmsel,s,BEAM",
-            "vsbv,all,vid_slot",
-            "cm,BEAM,volu",
-            "allsel,all",
-            "vdele,vid_slot",
-            "allsel,all",
-            "",
-        ]
+        f"block,{slot_x1},{slot_x2}, {slot_y1},{slot_y2}, {slot_z1},{slot_z2}",
+        "*get,vid_slot,volu,0,num,max",
+        "cmsel,s,BEAM",
+        "vsbv,all,vid_slot",
+        "cmdele,BEAM",
+        "cm,BEAM,volu",
+        "allsel,all",
+        "vdele,vid_slot",
+        "allsel,all",
+        "",
+    ]
 
         lines += [
             f"block,{slot_x1},{slot_x2}, {plate_y1},{plate_y2}, {slot_z1},{slot_z2}",
@@ -149,6 +150,7 @@ class MapdlExporter:
                 "*get,vtool,volu,0,num,max",
                 "cmsel,s,PLATE",
                 "vsbv,all,vtool",
+                "cmdele,PLATE",
                 "cm,PLATE,volu",
                 "allsel,all",
                 "vdele,vtool",
@@ -162,6 +164,7 @@ class MapdlExporter:
                 "*get,vtool,volu,0,num,max",
                 "cmsel,s,PLATE",
                 "vsbv,all,vtool",
+                "cmdele,PLATE",
                 "cm,PLATE,volu",
                 "allsel,all",
                 "vdele,vtool",
@@ -175,6 +178,7 @@ class MapdlExporter:
                 "*get,vtool,volu,0,num,max",
                 "cmsel,s,PLATE",
                 "vsbv,all,vtool",
+                "cmdele,PLATE",
                 "cm,PLATE,volu",
                 "allsel,all",
                 "vdele,vtool",
@@ -215,7 +219,7 @@ class MapdlExporter:
             "",
         ]
 
-        for i, (x, y) in enumerate(geo.dowel_positions(), start=1):
+        for x, y in geo.dowel_positions():
             lines += [
                 "CSYS,0",
                 "WPCSYS,-1",
@@ -227,6 +231,7 @@ class MapdlExporter:
                 "",
                 "cmsel,s,BEAM",
                 "vsbv,all,vhole",
+                "cmdele,BEAM",
                 "cm,BEAM,volu",
                 "allsel,all",
                 "vdele,vhole",
@@ -234,6 +239,26 @@ class MapdlExporter:
                 "",
             ]
 
+
+        # for i, (x, y) in enumerate(geo.dowel_positions(), start=1):
+        #     lines += [
+        #     "CSYS,0",
+        #     "WPCSYS,-1",
+        #     "WPOFFS,0,0,0",
+        #     "WPROTA,0,0,0",
+        #     "",
+        #     f"CYL4,{x},{y},{r_beam_hole},,,,{B}",
+        #     "*get,vhole,volu,0,num,max",
+        #     "",
+        #     "cmsel,s,BEAM",
+        #     "vsbv,all,vhole",
+        #     "cmdele,BEAM",
+        #     "cm,BEAM,volu",
+        #     "allsel,all",
+        #     "vdele,vhole",
+        #     "allsel,all",
+        #     "",
+        # ]
         return "\n".join(lines)
 
 
@@ -247,10 +272,13 @@ class MapdlExporter:
         lines: list[str] = []
         lines.append("! dowels")
         lines.append("! CYL4 is used with WP reset for robustness")
-        lines.append("cmdele,DOWELS")  # safe if not existing in some versions; ok if ignored
+        lines.append("cmdele,DOWELS")
         lines.append("")
-       
-        
+
+        for i in range(1, geo.num_dowels + 1):
+            lines.append(f"cmdele,DOWEL{i}")
+        lines.append("")
+
         for i, (x, y) in enumerate(geo.dowel_positions(), start=1):
             lines.extend([
                 "allsel,all",
@@ -258,46 +286,103 @@ class MapdlExporter:
                 "wpcsys,0",
                 "wpoffs,0,0,0",
                 "",
-                f"cyl4,{x},{y},{r_dowel},,,0,{B}",   # <-- viktig: z1=0, z2=B
+                f"cyl4,{x},{y},{r_dowel},,,0,{B}",
                 "*get,vid_dowel,volu,0,num,max",
                 f"cm,DOWEL{i},volu,vid_dowel",
                 "",
-                "*if," + str(i) + ",eq,1,then",
-                "  vsel,s,volu,,vid_dowel",
-                "  cm,DOWELS,volu",
-                "*else",
-                "  cmsel,s,DOWELS",
-                "  vsel,a,volu,,vid_dowel",
-                "  cm,DOWELS,volu",
-                "*endif",
                 "allsel,all",
                 "",
             ])
 
-            return "\n".join(lines)
+        return "\n".join(lines)
 
-    def _final_components_block(self) -> str:
-        return "\n".join([
-            "allsel,all",
-            "cmdele,BEAM",
-            "cmdele,PLATE",
-            "cmdele,DOWELS",
-            "",
-            "vsel,s,volu,,1",
-            "cm,BEAM,volu",
-            "allsel,all",
-            "",
-            "vsel,s,volu,,2",
-            "cm,PLATE,volu",
-            "allsel,all",
-            "",
-            "vsel,s,volu,,3,6",
+    def _dowels_component_block(self, geo: Geometry) -> str:
+        """Build DOWELS component robustly from DOWEL1...DOWELn"""
+        lines = []
+        lines.append("! build DOWELS component from individual dowels")
+        lines.append("cmdele,DOWELS")
+
+        for i in range(1, geo.num_dowels + 1):
+            if i == 1:
+                lines.append(f"cmsel,s,DOWEL{i}")
+            else:
+                lines.append(f"cmsel,a,DOWEL{i}")
+
+        lines += [
             "cm,DOWELS,volu",
+            "allsel,all",
+            "",
+        ]
+
+        return "\n".join(lines)
+    
+    # def _rebuild_final_beam_block(self) -> str:
+    #     return "\n".join([
+    #         "! rebuild BEAM as all volumes except PLATE and DOWELS",
+    #         "allsel,all",
+    #         "vsel,all",
+    #         "cmsel,u,PLATE",
+    #         "cmsel,u,DOWELS",
+    #         "cmdele,BEAM",
+    #         "cm,BEAM,volu",
+    #         "allsel,all",
+    #         "",
+    #     ])
+    
+    def _check_components_block(self, geo: Geometry) -> str:
+        return "\n".join([
+            "! debug: count volumes per component",
+
+            "allsel,all",
+            "cmsel,s,BEAM",
+            "*get,n_beam,volu,0,count",
+            "/com, BEAM selected vols = %n_beam%",
+            "allsel,all",
+
+            "cmsel,s,PLATE",
+            "*get,n_plate,volu,0,count",
+            "/com, PLATE selected vols = %n_plate%",
+            "allsel,all",
+
+            "cmsel,s,DOWELS",
+            "*get,n_dowels,volu,0,count",
+            "/com, DOWELS selected vols = %n_dowels%",
             "allsel,all",
             "",
         ])
     
-    # def _bonded_contact_block_v1(self, geo: Geometry) -> str:
+
+    def _debug_volume_attrs_block(self, geo: Geometry) -> str:
+        return "\n".join([
+            "! debug volume list",
+            "allsel,all",
+            "vlist,all",
+            "",
+        ])
+
+    def _debug_component_vlists_block(self, geo: Geometry) -> str:
+        return "\n".join([
+            "! debug each component separately",
+
+            "/com, --- BEAM component ---",
+            "allsel,all",
+            "cmsel,s,BEAM",
+            "vlist,all",
+
+            "/com, --- PLATE component ---",
+            "allsel,all",
+            "cmsel,s,PLATE",
+            "vlist,all",
+
+            "/com, --- DOWELS component ---",
+            "allsel,all",
+            "cmsel,s,DOWELS",
+            "vlist,all",
+
+            "allsel,all",
+            "",
+        ])
+        # def _bonded_contact_block_v1(self, geo: Geometry) -> str:
     #     """
     #     Bonded contact (v1):
     #     - Plate <-> Beam at slot Z faces
@@ -411,22 +496,28 @@ class MapdlExporter:
     def _assign_materials(self, mat_wood: int, mat_steel: int, et_id: int) -> str:
         return "\n".join([
             "! material assignment by components (robust)",
-            f"type,{et_id}",
+            "",
 
             "! BEAM -> wood",
-            "cmsel,s,BEAM",
+            "allsel,all",
+            "vsel,none",
+            "cmsel,a,BEAM",
             f"vatt,{mat_wood},,{et_id}",
             "allsel,all",
             "",
 
             "! PLATE -> steel",
-            "cmsel,s,PLATE",
+            "allsel,all",
+            "vsel,none",
+            "cmsel,a,PLATE",
             f"vatt,{mat_steel},,{et_id}",
             "allsel,all",
             "",
 
             "! DOWELS -> steel",
-            "cmsel,s,DOWELS",
+            "allsel,all",
+            "vsel,none",
+            "cmsel,a,DOWELS",
             f"vatt,{mat_steel},,{et_id}",
             "allsel,all",
             "",
@@ -442,9 +533,26 @@ class MapdlExporter:
             "mshape,1,3d",
             "mshkey,0",
             f"esize,{h}",
-            "vsel,all",
+            "",
+
+            "! mesh BEAM",
+            "cmsel,s,BEAM",
             "vmesh,all",
             "allsel,all",
+            "",
+
+            "! mesh PLATE",
+            "cmsel,s,PLATE",
+            "vmesh,all",
+            "allsel,all",
+            "",
+
+            "! mesh DOWELS",
+            "cmsel,s,DOWELS",
+            "vmesh,all",
+            "allsel,all",
+            "",
+
             "*get,nn,node,0,count",
             "*get,ne,elem,0,count",
             "/com, NODE=%nn%  ELEM=%ne%",
@@ -475,10 +583,16 @@ class MapdlExporter:
         blocks.append(self._beam_holes_block(geo)) 
         blocks.append(self._plate_slots_block(geo)) 
         blocks.append(self._dowels_block(geo))
-        blocks.append(self._final_components_block())
+        blocks.append(self._dowels_component_block(geo))
+        #blocks.append(self._rebuild_final_beam_block())
+        blocks.append(self._check_components_block(geo))
         blocks.append(self._assign_materials(mat_wood, mat_steel, et_id))
+        blocks.append(self._debug_component_vlists_block(geo))
+        blocks.append(self._debug_volume_attrs_block(geo))
         blocks.append(self._mesh_block())
         #blocks.append(self._bonded_contact_block_v1(geo))
+        
+    
 
         Path(path).write_text("\n".join(blocks))
 
