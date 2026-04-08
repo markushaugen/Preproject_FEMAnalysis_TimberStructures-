@@ -84,3 +84,162 @@
 
  *** ERROR ***                           CP =      15.141   TIME= 13:59:27
  Volume 1 has invalid topology for mapped brick meshing.                 
+/COM,ANSYS RELEASE 2025 R2           BUILD 25.2      UP20250519       10:54:45
+
+ *** WARNING ***                         CP =       3.781   TIME= 10:55:09
+ Unselected volume 2.                                                    
+
+ *** WARNING ***                         CP =       4.125   TIME= 10:55:09
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =       4.375   TIME= 10:55:09
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =       4.391   TIME= 10:55:09
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =       4.422   TIME= 10:55:09
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =       4.469   TIME= 10:55:09
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =       4.531   TIME= 10:55:10
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =       4.578   TIME= 10:55:10
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =       4.609   TIME= 10:55:10
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =       4.641   TIME= 10:55:10
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =       4.672   TIME= 10:55:10
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =       4.734   TIME= 10:55:10
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =       4.766   TIME= 10:55:10
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =       4.812   TIME= 10:55:10
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =       4.844   TIME= 10:55:11
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =       4.875   TIME= 10:55:11
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =       4.922   TIME= 10:55:11
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =       5.406   TIME= 10:55:11
+ Mid-nodes of some elements have been modified to lie on straight edges  
+ because of distortion with the original mid-nodes.  This condition is   
+ sometimes eliminated by tetrahedron element improvement when enabled.   
+ Issue ESEL,,STRAIGHTENED to select such elements for listing or         
+ plotting.                                                               
+
+ *** WARNING ***                         CP =       5.953   TIME= 10:55:12
+ Mid-nodes of some elements have been modified to lie on straight edges  
+ because of distortion with the original mid-nodes.  This condition is   
+ sometimes eliminated by tetrahedron element improvement when enabled.   
+ Issue ESEL,,STRAIGHTENED to select such elements for listing or         
+ plotting.                                                               
+
+ *** WARNING ***                         CP =       6.484   TIME= 10:55:12
+ Mid-nodes of some elements have been modified to lie on straight edges  
+ because of distortion with the original mid-nodes.  This condition is   
+ sometimes eliminated by tetrahedron element improvement when enabled.   
+ Issue ESEL,,STRAIGHTENED to select such elements for listing or         
+ plotting.                                                               
+
+ *** WARNING ***                         CP =       6.969   TIME= 10:55:12
+ Mid-nodes of some elements have been modified to lie on straight edges  
+ because of distortion with the original mid-nodes.  This condition is   
+ sometimes eliminated by tetrahedron element improvement when enabled.   
+ Issue ESEL,,STRAIGHTENED to select such elements for listing or         
+ plotting.                                                               
+
+ *** WARNING ***                         CP =      10.188   TIME= 11:03:15
+ Unselected volume 2.                                                    
+
+ *** WARNING ***                         CP =      10.719   TIME= 11:03:15
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =      10.828   TIME= 11:03:16
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =      10.906   TIME= 11:03:16
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =      10.953   TIME= 11:03:16
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =      11.047   TIME= 11:03:16
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =      11.109   TIME= 11:03:16
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =      11.156   TIME= 11:03:16
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =      11.250   TIME= 11:03:17
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =      11.344   TIME= 11:03:17
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =      11.375   TIME= 11:03:17
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =      11.438   TIME= 11:03:17
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =      11.484   TIME= 11:03:17
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =      11.531   TIME= 11:03:17
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =      11.594   TIME= 11:03:18
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =      11.656   TIME= 11:03:18
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =      11.719   TIME= 11:03:18
+ Unselected volume 3.                                                    
+
+ *** WARNING ***                         CP =      12.406   TIME= 11:03:19
+ Mid-nodes of some elements have been modified to lie on straight edges  
+ because of distortion with the original mid-nodes.  This condition is   
+ sometimes eliminated by tetrahedron element improvement when enabled.   
+ Issue ESEL,,STRAIGHTENED to select such elements for listing or         
+ plotting.                                                               
+
+ *** WARNING ***                         CP =      13.000   TIME= 11:03:19
+ Mid-nodes of some elements have been modified to lie on straight edges  
+ because of distortion with the original mid-nodes.  This condition is   
+ sometimes eliminated by tetrahedron element improvement when enabled.   
+ Issue ESEL,,STRAIGHTENED to select such elements for listing or         
+ plotting.                                                               
+
+ *** WARNING ***                         CP =      13.531   TIME= 11:03:19
+ Mid-nodes of some elements have been modified to lie on straight edges  
+ because of distortion with the original mid-nodes.  This condition is   
+ sometimes eliminated by tetrahedron element improvement when enabled.   
+ Issue ESEL,,STRAIGHTENED to select such elements for listing or         
+ plotting.                                                               
+
+ *** WARNING ***                         CP =      14.109   TIME= 11:03:19
+ Mid-nodes of some elements have been modified to lie on straight edges  
+ because of distortion with the original mid-nodes.  This condition is   
+ sometimes eliminated by tetrahedron element improvement when enabled.   
+ Issue ESEL,,STRAIGHTENED to select such elements for listing or         
+ plotting.                                                               
