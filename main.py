@@ -31,7 +31,7 @@ def parse_args():
     p.add_argument("--d_dowel", type=float, default=12)
     p.add_argument("--s_dowel", type=float, default=120)
     p.add_argument("--a_edge", type=float, default=60)
-    p.add_argument("--mesh", type=float, default=50, help="Global element size in mm")
+    p.add_argument("--mesh", type=float, default=10, help="Global element size in mm")
 
     return p.parse_args()
 
@@ -85,11 +85,24 @@ if __name__ == "__main__":
 
     # Geometry 
     geo = Geometry(
-        beam_length=args.L, beam_height=args.H, beam_width=args.B,
-        plate_thickness=args.t_plate, slot_x1=600, slot_x2=args.L, slot_y1=30, slot_y2=args.H - 30, clearance_y=2.0,
-        num_dowels=args.n_dowels, dowel_diameter=args.d_dowel,
-        dowel_spacing=args.s_dowel, edge_distance=args.a_edge
+        beam_length=args.L,
+        beam_height=args.H,
+        beam_width=args.B,
+        plate_thickness=args.t_plate,
+        slot_x1=600,
+        slot_x2=args.L,
+        slot_y1=30,
+        slot_y2=args.H - 30,
+        clearance_y=0.0,
+        plate_slot_clearance_y=0.5,
+        beam_hole_clearance=0.0,
+        plate_hole_clearance=0.0,
+        num_dowels=args.n_dowels,
+        dowel_diameter=args.d_dowel,
+        dowel_spacing=args.s_dowel,
+        edge_distance=args.a_edge
     )
+
 
     try:
         geo.validate()

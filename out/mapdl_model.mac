@@ -34,7 +34,7 @@ allsel,all
 vdele,vid_slot
 allsel,all
 
-block,600,4000, 31.0,369.0, 66.0,74.0
+block,600,4000, 30.0,370.0, 66.0,74.0
 *get,vid_plate,volu,0,num,max
 cm,PLATE,volu,vid_plate
 allsel,all
@@ -47,7 +47,7 @@ WPCSYS,-1
 WPOFFS,0,0,0
 WPROTA,0,0,0
 
-CYL4,3540.0,200.0,8.0,,,,140
+CYL4,3540.0,200.0,6.0,,,,140
 *get,vhole,volu,0,num,max
 
 cmsel,s,BEAM
@@ -63,7 +63,7 @@ WPCSYS,-1
 WPOFFS,0,0,0
 WPROTA,0,0,0
 
-CYL4,3660.0,200.0,8.0,,,,140
+CYL4,3660.0,200.0,6.0,,,,140
 *get,vhole,volu,0,num,max
 
 cmsel,s,BEAM
@@ -79,7 +79,7 @@ WPCSYS,-1
 WPOFFS,0,0,0
 WPROTA,0,0,0
 
-CYL4,3780.0,200.0,8.0,,,,140
+CYL4,3780.0,200.0,6.0,,,,140
 *get,vhole,volu,0,num,max
 
 cmsel,s,BEAM
@@ -95,7 +95,7 @@ WPCSYS,-1
 WPOFFS,0,0,0
 WPROTA,0,0,0
 
-CYL4,3900.0,200.0,8.0,,,,140
+CYL4,3900.0,200.0,6.0,,,,140
 *get,vhole,volu,0,num,max
 
 cmsel,s,BEAM
@@ -117,7 +117,7 @@ WPCSYS,-1
 WPOFFS,0,0,66.0
 WPROTA,0,0,0
 
-CYL4,3540.0,199.0,8.0,,,,8
+CYL4,3540.0,199.5,6.0,,,,8
 *get,vtool,volu,0,num,max
 cmsel,s,PLATE
 vsbv,all,vtool
@@ -127,7 +127,7 @@ allsel,all
 vdele,vtool
 allsel,all
 
-CYL4,3540.0,201.0,8.0,,,,8
+CYL4,3540.0,200.5,6.0,,,,8
 *get,vtool,volu,0,num,max
 cmsel,s,PLATE
 vsbv,all,vtool
@@ -137,48 +137,7 @@ allsel,all
 vdele,vtool
 allsel,all
 
-block,3532.0,3548.0, 199.0,201.0, 66.0,74.0
-*get,vtool,volu,0,num,max
-cmsel,s,PLATE
-vsbv,all,vtool
-cmdele,PLATE
-cm,PLATE,volu
-allsel,all
-vdele,vtool
-allsel,all
-
-WPOFFS,0,0,0
-allsel,all
-
-allsel,all
-cmsel,s,PLATE
-
-CSYS,0
-WPCSYS,-1
-WPOFFS,0,0,66.0
-WPROTA,0,0,0
-
-CYL4,3660.0,199.0,8.0,,,,8
-*get,vtool,volu,0,num,max
-cmsel,s,PLATE
-vsbv,all,vtool
-cmdele,PLATE
-cm,PLATE,volu
-allsel,all
-vdele,vtool
-allsel,all
-
-CYL4,3660.0,201.0,8.0,,,,8
-*get,vtool,volu,0,num,max
-cmsel,s,PLATE
-vsbv,all,vtool
-cmdele,PLATE
-cm,PLATE,volu
-allsel,all
-vdele,vtool
-allsel,all
-
-block,3652.0,3668.0, 199.0,201.0, 66.0,74.0
+block,3534.0,3546.0, 199.5,200.5, 66.0,74.0
 *get,vtool,volu,0,num,max
 cmsel,s,PLATE
 vsbv,all,vtool
@@ -199,7 +158,7 @@ WPCSYS,-1
 WPOFFS,0,0,66.0
 WPROTA,0,0,0
 
-CYL4,3780.0,199.0,8.0,,,,8
+CYL4,3660.0,199.5,6.0,,,,8
 *get,vtool,volu,0,num,max
 cmsel,s,PLATE
 vsbv,all,vtool
@@ -209,7 +168,7 @@ allsel,all
 vdele,vtool
 allsel,all
 
-CYL4,3780.0,201.0,8.0,,,,8
+CYL4,3660.0,200.5,6.0,,,,8
 *get,vtool,volu,0,num,max
 cmsel,s,PLATE
 vsbv,all,vtool
@@ -219,7 +178,7 @@ allsel,all
 vdele,vtool
 allsel,all
 
-block,3772.0,3788.0, 199.0,201.0, 66.0,74.0
+block,3654.0,3666.0, 199.5,200.5, 66.0,74.0
 *get,vtool,volu,0,num,max
 cmsel,s,PLATE
 vsbv,all,vtool
@@ -240,7 +199,7 @@ WPCSYS,-1
 WPOFFS,0,0,66.0
 WPROTA,0,0,0
 
-CYL4,3900.0,199.0,8.0,,,,8
+CYL4,3780.0,199.5,6.0,,,,8
 *get,vtool,volu,0,num,max
 cmsel,s,PLATE
 vsbv,all,vtool
@@ -250,7 +209,7 @@ allsel,all
 vdele,vtool
 allsel,all
 
-CYL4,3900.0,201.0,8.0,,,,8
+CYL4,3780.0,200.5,6.0,,,,8
 *get,vtool,volu,0,num,max
 cmsel,s,PLATE
 vsbv,all,vtool
@@ -260,7 +219,48 @@ allsel,all
 vdele,vtool
 allsel,all
 
-block,3892.0,3908.0, 199.0,201.0, 66.0,74.0
+block,3774.0,3786.0, 199.5,200.5, 66.0,74.0
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE
+vsbv,all,vtool
+cmdele,PLATE
+cm,PLATE,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+WPOFFS,0,0,0
+allsel,all
+
+allsel,all
+cmsel,s,PLATE
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,66.0
+WPROTA,0,0,0
+
+CYL4,3900.0,199.5,6.0,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE
+vsbv,all,vtool
+cmdele,PLATE
+cm,PLATE,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+CYL4,3900.0,200.5,6.0,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE
+vsbv,all,vtool
+cmdele,PLATE
+cm,PLATE,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+block,3894.0,3906.0, 199.5,200.5, 66.0,74.0
 *get,vtool,volu,0,num,max
 cmsel,s,PLATE
 vsbv,all,vtool
@@ -398,7 +398,7 @@ vlist,all
 ! meshing
 mshape,1,3d
 mshkey,0
-esize,40.0
+esize,20.0
 
 ! mesh BEAM
 cmsel,s,BEAM
@@ -418,4 +418,191 @@ allsel,all
 *get,nn,node,0,count
 *get,ne,elem,0,count
 /com, NODE=%nn%  ELEM=%ne%
+
+! ---------------- CONTACT DEFINITION ----------------
+! frictionless contact: dowel <-> beam and dowel <-> plate
+allsel,all
+
+! contact element types
+et,2,targe170
+et,3,conta174
+
+! basic contact options
+keyopt,3,4,0
+keyopt,3,12,0
+
+! real constant sets
+r,1
+r,2
+r,3
+r,4
+
+! ---- CONTACT SET FOR DOWEL 1 at x=3540.0, y=200.0 ----
+
+! target on dowel surface
+allsel,all
+cmsel,s,DOWEL1
+nslv,s,1
+esln,s
+type,2
+real,1
+mat,2
+esurf
+allsel,all
+
+! contact on timber hole region
+allsel,all
+cmsel,s,BEAM
+nsle,s
+nsel,r,loc,x,3528.0,3552.0
+nsel,r,loc,y,188.0,212.0
+nsel,r,loc,z,0,140
+esln,s
+type,3
+real,1
+mat,1
+esurf
+allsel,all
+
+! contact on plate slot region
+allsel,all
+cmsel,s,PLATE
+nsle,s
+nsel,r,loc,x,3528.0,3552.0
+nsel,r,loc,y,30.0,370.0
+nsel,r,loc,z,66.0,74.0
+esln,s
+type,3
+real,1
+mat,2
+esurf
+allsel,all
+
+! ---- CONTACT SET FOR DOWEL 2 at x=3660.0, y=200.0 ----
+
+! target on dowel surface
+allsel,all
+cmsel,s,DOWEL2
+nslv,s,1
+esln,s
+type,2
+real,2
+mat,2
+esurf
+allsel,all
+
+! contact on timber hole region
+allsel,all
+cmsel,s,BEAM
+nsle,s
+nsel,r,loc,x,3648.0,3672.0
+nsel,r,loc,y,188.0,212.0
+nsel,r,loc,z,0,140
+esln,s
+type,3
+real,2
+mat,1
+esurf
+allsel,all
+
+! contact on plate slot region
+allsel,all
+cmsel,s,PLATE
+nsle,s
+nsel,r,loc,x,3648.0,3672.0
+nsel,r,loc,y,30.0,370.0
+nsel,r,loc,z,66.0,74.0
+esln,s
+type,3
+real,2
+mat,2
+esurf
+allsel,all
+
+! ---- CONTACT SET FOR DOWEL 3 at x=3780.0, y=200.0 ----
+
+! target on dowel surface
+allsel,all
+cmsel,s,DOWEL3
+nslv,s,1
+esln,s
+type,2
+real,3
+mat,2
+esurf
+allsel,all
+
+! contact on timber hole region
+allsel,all
+cmsel,s,BEAM
+nsle,s
+nsel,r,loc,x,3768.0,3792.0
+nsel,r,loc,y,188.0,212.0
+nsel,r,loc,z,0,140
+esln,s
+type,3
+real,3
+mat,1
+esurf
+allsel,all
+
+! contact on plate slot region
+allsel,all
+cmsel,s,PLATE
+nsle,s
+nsel,r,loc,x,3768.0,3792.0
+nsel,r,loc,y,30.0,370.0
+nsel,r,loc,z,66.0,74.0
+esln,s
+type,3
+real,3
+mat,2
+esurf
+allsel,all
+
+! ---- CONTACT SET FOR DOWEL 4 at x=3900.0, y=200.0 ----
+
+! target on dowel surface
+allsel,all
+cmsel,s,DOWEL4
+nslv,s,1
+esln,s
+type,2
+real,4
+mat,2
+esurf
+allsel,all
+
+! contact on timber hole region
+allsel,all
+cmsel,s,BEAM
+nsle,s
+nsel,r,loc,x,3888.0,3912.0
+nsel,r,loc,y,188.0,212.0
+nsel,r,loc,z,0,140
+esln,s
+type,3
+real,4
+mat,1
+esurf
+allsel,all
+
+! contact on plate slot region
+allsel,all
+cmsel,s,PLATE
+nsle,s
+nsel,r,loc,x,3888.0,3912.0
+nsel,r,loc,y,30.0,370.0
+nsel,r,loc,z,66.0,74.0
+esln,s
+type,3
+real,4
+mat,2
+esurf
+allsel,all
+
+! ----------------------------------------------------
+allsel,all
+
+allsel,all
 finish
