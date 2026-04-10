@@ -14,10 +14,10 @@ class Geometry:
     slot_x2: float = 1000
     slot_y1: float = 30
     slot_y2: float = 170
-    clearance_y: float = 2.0
-    plate_slot_clearance_y: float = 1.0  
-    beam_hole_clearance: float = 2.0
-    plate_hole_clearance: float = 2.0
+    clearance_y: float = 0.0
+    plate_slot_clearance_y: float = 0.5  
+    beam_hole_clearance: float = 0.0
+    plate_hole_clearance: float = 0.0
     dowels_from_right: bool = True
     num_dowels: int = 4
     dowel_diameter: float = 20
@@ -39,6 +39,11 @@ class Geometry:
         assert self.plate_thickness <= self.beam_width, "Plate thickness must be <= beam width (Z-direction)"
         assert self.dowel_spacing > 0, "Dowel spacing must be > 0"
         assert self.edge_distance > 0, "Edge distance must be > 0"
+        assert self.beam_hole_clearance >= 0.0, "beam_hole_clearance must be >= 0"
+        assert self.plate_hole_clearance >= 0.0, "plate_hole_clearance must be >= 0"
+        assert self.plate_slot_clearance_y >= 0.0, "plate_slot_clearance_y must be >= 0"
+        assert self.clearance_y >= 0.0, "clearance_y must be >= 0"
+        assert self.slot_y2 - self.slot_y1 > self.clearance_y, "Plate slot height must be larger than clearance_y"
 
         # Dowel row within Y bounds
         y_row = self.beam_height / 2.0 + self.row_offset

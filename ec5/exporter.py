@@ -556,9 +556,113 @@ class MapdlExporter:
             "*get,nn,node,0,count",
             "*get,ne,elem,0,count",
             "/com, NODE=%nn%  ELEM=%ne%",
+            "",
+        ])
+
+
+    def _finish_block(self) -> str:
+        return "\n".join([
+            "allsel,all",
             "finish",
             "",
         ])
+    
+    def _contact_block_frictionless(self, geo: Geometry) -> str:
+        """
+        Create frictionless contact after meshing:
+        - target on each steel dowel outer surface
+        - contact on timber hole surface near each dowel
+        - contact on plate slot surface near each dowel
+
+        This is a practical APDL-generated contact setup for the current geometry.
+        """
+
+        search_dx = max(geo.dowel_diameter, 10.0)
+        search_dy = max(geo.dowel_diameter, 10.0)
+
+        lines: list[str] = []
+        lines += [
+            "! ---------------- CONTACT DEFINITION ----------------",
+            "! frictionless contact: dowel <-> beam and dowel <-> plate",
+            "allsel,all",
+            "",
+            "! contact element types",
+            "et,2,targe170",
+            "et,3,conta174",
+            "",
+            "! basic contact options",
+            "keyopt,3,4,0",
+            "keyopt,3,12,0",
+            "",
+            "! real constant sets",
+            "r,1",
+            "r,2",
+            "r,3",
+            "r,4",
+            "",
+        ]
+
+        for i, (x, y) in enumerate(geo.dowel_positions(), start=1):
+            lines += [
+                f"! ---- CONTACT SET FOR DOWEL {i} at x={x}, y={y} ----",
+                "",
+                "! target on dowel surface",
+                "allsel,all",
+                f"cmsel,s,DOWEL{i}",
+                "nslv,s,1",
+                "esln,s",
+                "type,2",
+                f"real,{i}",
+                "mat,2",
+                "esurf",
+                "allsel,all",
+                "",
+                "! contact on timber hole region",
+                "allsel,all",
+                "cmsel,s,BEAM",
+                "nsle,s",
+                f"nsel,r,loc,x,{x-search_dx},{x+search_dx}",
+                f"nsel,r,loc,y,{y-search_dy},{y+search_dy}",
+                f"nsel,r,loc,z,0,{geo.beam_width}",
+                "esln,s",
+                "type,3",
+                f"real,{i}",
+                "mat,1",
+                "esurf",
+                "allsel,all",
+                "",
+            ]
+
+            if geo.plate_thickness > 0:
+                slot_z1 = geo.beam_width / 2.0 - geo.plate_thickness / 2.0
+                slot_z2 = geo.beam_width / 2.0 + geo.plate_thickness / 2.0
+                plate_y1 = geo.slot_y1 + geo.clearance_y / 2.0
+                plate_y2 = geo.slot_y2 - geo.clearance_y / 2.0
+
+                lines += [
+                    "! contact on plate slot region",
+                    "allsel,all",
+                    "cmsel,s,PLATE",
+                    "nsle,s",
+                    f"nsel,r,loc,x,{x-search_dx},{x+search_dx}",
+                    f"nsel,r,loc,y,{plate_y1},{plate_y2}",
+                    f"nsel,r,loc,z,{slot_z1},{slot_z2}",
+                    "esln,s",
+                    "type,3",
+                    f"real,{i}",
+                    "mat,2",
+                    "esurf",
+                    "allsel,all",
+                    "",
+                ]
+
+        lines += [
+            "! ----------------------------------------------------",
+            "allsel,all",
+            "",
+        ]
+
+        return "\n".join(lines)
 
     # EXPORT
     def export_mapdl_model(
@@ -590,6 +694,8 @@ class MapdlExporter:
         blocks.append(self._debug_component_vlists_block(geo))
         blocks.append(self._debug_volume_attrs_block(geo))
         blocks.append(self._mesh_block())
+        blocks.append(self._contact_block_frictionless(geo))
+        blocks.append(self._finish_block())
         #blocks.append(self._bonded_contact_block_v1(geo))
         
     
