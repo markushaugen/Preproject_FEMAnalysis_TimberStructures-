@@ -51,6 +51,9 @@ class OrthoElastic:
 class TimberStrength:
     fc0k: float; ft0k: float; ft90k: float
     fc90k: float; fmk: float; frk: float
+    fvk: float = 0.0
+    fhk: float = 0.0
+    rho_k: float = 0.0
 
 @dataclass
 class TimberDesign:
@@ -73,6 +76,7 @@ class TimberDesign:
             "fc90d": self.design_value(s.fc90k, duration),
             "fmd": self.design_value(s.fmk, duration),
             "frd": self.design_value(s.frk, duration),
+            "fvd": self.design_value(s.fvk, duration),
         }
 
 # Loads 

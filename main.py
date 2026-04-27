@@ -9,7 +9,7 @@ from ec5.exporter import MapdlExporter
 
 def parse_args():
     p = argparse.ArgumentParser(description="EC5 parameters + simple geometry")
-    p.add_argument("--class", dest="cls", default="C24",
+    p.add_argument("--timber", dest="cls", default="GL30h",
                 help=f"Timber class (options: {', '.join(list_classes())})")
     p.add_argument("--sc", dest="sc", type=int, default=1, choices=[1, 2, 3])
     p.add_argument("--duration", dest="dur", default="short",
@@ -27,11 +27,24 @@ def parse_args():
     p.add_argument("--B", type=float, default=140)
     p.add_argument("--t_plate", type=float, default=8)
     p.add_argument("--slot_depth", type=float, default=20)
-    p.add_argument("--n_dowels", type=int, default=4)
+    p.add_argument("--n_rows", type=int, default=1,
+                help="Number of dowel rows perpendicular to grain (Y-direction)")
+    p.add_argument("--n_cols", type=int, default=4,
+                help="Number of dowels along grain (X-direction) per row")
     p.add_argument("--d_dowel", type=float, default=12)
     p.add_argument("--s_dowel", type=float, default=120)
-    p.add_argument("--a_edge", type=float, default=60)
+    p.add_argument("--a_edge", type=float, default=100)
+    p.add_argument("--row_spacing", type=float, default=60,
+                help="Perpendicular spacing between adjacent dowel rows (mm), used when n_rows > 1")
     p.add_argument("--mesh", type=float, default=10, help="Global element size in mm")
+    p.add_argument("--n_plates", type=int, default=1, choices=[1, 2, 3],
+                help="Number of slotted-in steel plates (1, 2, or 3). EC5 5d rule is used for Z-positioning.")
+    p.add_argument("--block-shear", dest="block_shear", action="store_true",
+                help="Double dowel diameter and remove clearance to force block shear failure in timber")
+    p.add_argument("--solve", dest="solve", action="store_true",
+                help="Include /SOLU block in the .mac file so ANSYS solves on load")
+    p.add_argument("--cwd", dest="cwd", default=None,
+                help="Working directory on the ANSYS server (avoids slow RDP writes)")
 
     return p.parse_args()
 
@@ -89,18 +102,19 @@ if __name__ == "__main__":
         beam_height=args.H,
         beam_width=args.B,
         plate_thickness=args.t_plate,
-        slot_x1=600,
-        slot_x2=args.L,
         slot_y1=30,
         slot_y2=args.H - 30,
         clearance_y=0.0,
         plate_slot_clearance_y=0.5,
-        beam_hole_clearance=0.0,
-        plate_hole_clearance=0.0,
-        num_dowels=args.n_dowels,
+        beam_hole_clearance=0.3,
+        plate_hole_clearance=0.3,
+        n_rows=args.n_rows,
+        n_cols=args.n_cols,
         dowel_diameter=args.d_dowel,
         dowel_spacing=args.s_dowel,
-        edge_distance=args.a_edge
+        edge_distance=args.a_edge,
+        row_spacing=args.row_spacing,
+        n_plates=args.n_plates,
     )
 
 
@@ -111,24 +125,23 @@ if __name__ == "__main__":
         raise
 
     coords = geo.dowel_positions()
-    print("\nGeometry (mm): L={}, H={}, B={}, t_plate={}, slot={}, n={}, d={}, s={}, a_edge={}"
+    print("\nGeometry (mm): L={}, H={}, B={}, t_plate={}, slot={}, grid={}x{}, n={}, d={}, s={}, a_edge={}"
         .format(args.L, args.H, args.B, args.t_plate, args.slot_depth,
-                args.n_dowels, args.d_dowel, args.s_dowel, args.a_edge))
+                args.n_rows, args.n_cols, geo.num_dowels, args.d_dowel, args.s_dowel, args.a_edge))
     print("Dowel positions (x,z) mm:", coords)
 
-    # EC5 EYM connection design 
-    rho_k = 420.0  # C24 density
+    # EC5 EYM connection design
+    rho_k = timber.strength_char.rho_k
     setup = FastenerSetup(
         d_mm=args.d_dowel,
         t_wood_mm=args.B,
-        n=args.n_dowels
+        n=geo.num_dowels
     )
 
     eym = eym_single_shear_design(
         timber=timber,
         duration=dur_enum(args.dur),
         setup=setup,
-        rho_k=rho_k
     )
 
     print("\nEC5 EYM design capacities (single shear):")
@@ -136,7 +149,7 @@ if __name__ == "__main__":
     print(f"  Rd_mode_b [N]: {eym['Rd_mode_b_N']:.1f}")
     print(f"  Rd_mode_c [N]: {eym['Rd_mode_c_N']:.1f}")
     print(f"  Governing per fastener [N]: {eym['Rd_governing_per_fastener_N']:.1f}")
-    print(f"  Total for n={args.n_dowels} [N]: {eym['Rd_total_N']:.1f}")
+    print(f"  Total for n={geo.num_dowels} ({args.n_rows}x{args.n_cols}) [N]: {eym['Rd_total_N']:.1f}")
 
     # Save model parameters
     os.makedirs("out", exist_ok=True)
@@ -149,7 +162,8 @@ if __name__ == "__main__":
             "geometry_mm": {
                 "L": args.L, "H": args.H, "B": args.B,
                 "t_plate": args.t_plate, "slot_depth": args.slot_depth,
-                "n_dowels": args.n_dowels, "d_dowel": args.d_dowel,
+                "n_rows": args.n_rows, "n_cols": args.n_cols, "n_dowels": geo.num_dowels,
+                "d_dowel": args.d_dowel,
                 "s_dowel": args.s_dowel, "a_edge": args.a_edge,
                 "dowel_positions": coords
             }
@@ -172,7 +186,7 @@ if __name__ == "__main__":
 
     if args.mapdl:
         os.makedirs("out", exist_ok=True)
-        exporter = MapdlExporter(element_size_mm=args.mesh)
+        exporter = MapdlExporter(element_size_mm=args.mesh, block_shear=args.block_shear)
         mapdl_path = os.path.join("out", "mapdl_model.mac")
         exporter.export_mapdl_model(
             path=mapdl_path,
@@ -180,6 +194,8 @@ if __name__ == "__main__":
             geo=geo,
             setup=setup,
             model_name="timber_conn",
+            solve=args.solve,
+            working_dir=args.cwd,
         )
         print(f"Wrote MAPDL script: {mapdl_path}")
 

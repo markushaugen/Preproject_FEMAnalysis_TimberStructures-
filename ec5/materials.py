@@ -17,6 +17,7 @@ MATERIALS_FALLBACK: Dict[str, Dict[str, object]] = {
         "strength": TimberStrength(
             fc0k=21, ft0k=14, ft90k=0.4,
             fc90k=2.5, fmk=24, frk=4.0,
+            fvk=2.5, fhk=21.2, rho_k=420,
         ),
     }
 }
@@ -45,6 +46,9 @@ def _from_row(r: Dict[str, str]) -> Tuple[OrthoElastic, TimberStrength]:
         fc90k=float(r["fc90k"]) * PA_TO_MPA,
         fmk=float(r["fmk"]) * PA_TO_MPA,
         frk=float(r["frk"]) * PA_TO_MPA,
+        fvk=float(r.get("fvk", 0)) * PA_TO_MPA,
+        fhk=float(r.get("fhk", 0)) * PA_TO_MPA,
+        rho_k=float(r.get("rho_k", 0)),
     )
 
     return elastic, strength

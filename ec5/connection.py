@@ -41,7 +41,7 @@ def eym_single_shear_design(
     timber: TimberDesign,
     duration: LoadDuration,
     setup: FastenerSetup,
-    rho_k: float,
+    rho_k: float = 0.0,
     gamma_M_conn: float = GAMMA_M_CONN,
 ) -> Dict[str, float]:
     """
@@ -63,8 +63,9 @@ def eym_single_shear_design(
     t = setup.t_wood_mm
     n = setup.n
 
-    # Characteristic embedment strength fh,k 
-    fhk = embedment_strength_char(rho_k, d)
+    # Use fhk from timber data if available, otherwise compute from rho_k
+    fhk_csv = timber.strength_char.fhk
+    fhk = fhk_csv if fhk_csv > 0 else embedment_strength_char(rho_k or timber.strength_char.rho_k, d)
 
     # Characteristic fastener yield moment My,Rk 
     My_Rk = bolt_yield_moment_char(d, setup.fy_steel)

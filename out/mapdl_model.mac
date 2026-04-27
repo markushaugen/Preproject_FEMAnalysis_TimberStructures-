@@ -1,30 +1,31 @@
 /PREP7
 ! timber material
-mp,ex,1,11000.0
-mp,ey,1,370.0
-mp,ez,1,370.0
+mp,ex,1,13600.0
+mp,ey,1,300.0
+mp,ez,1,300.0
 mp,prxy,1,0.35
 mp,pryz,1,0.35
 mp,prxz,1,0.35
-mp,gxy,1,690.0
-mp,gyz,1,552.0
-mp,gxz,1,552.0
+mp,gxy,1,650.0
+mp,gyz,1,520.0
+mp,gxz,1,520.0
 
 ! steel material
 mp,ex,2,210000
 mp,prxy,2,0.3
 
-! element type
-et,1,186
+! element type: SOLID187 (10-node tet, better for curved geometry)
+et,1,187
 
 ! timber beam volume
-block,0,4000, 0,400, 0,140
+block,0,2000.0, 0,300.0, 0,200.0
 *get,vid_beam,volu,0,num,max
 cm,BEAM,volu,vid_beam
 allsel,all
 
-! slot and steel plate
-block,600,4000, 30,370, 66.0,74.0
+! beam slots and steel plates
+! Cut slot 1 from BEAM (z = 60.000 to 68.000)
+block,1560.0,2000.0, 30,270.0, 60.0,68.0
 *get,vid_slot,volu,0,num,max
 cmsel,s,BEAM
 vsbv,all,vid_slot
@@ -34,9 +35,27 @@ allsel,all
 vdele,vid_slot
 allsel,all
 
-block,600,4000, 30.0,370.0, 66.0,74.0
+! Cut slot 2 from BEAM (z = 132.000 to 140.000)
+block,1560.0,2000.0, 30,270.0, 132.0,140.0
+*get,vid_slot,volu,0,num,max
+cmsel,s,BEAM
+vsbv,all,vid_slot
+cmdele,BEAM
+cm,BEAM,volu
+allsel,all
+vdele,vid_slot
+allsel,all
+
+! Create PLATE1 (z = 60.000 to 68.000)
+block,1560.0,2000.0, 30.0,270.0, 60.0,68.0
 *get,vid_plate,volu,0,num,max
-cm,PLATE,volu,vid_plate
+cm,PLATE1,volu,vid_plate
+allsel,all
+
+! Create PLATE2 (z = 132.000 to 140.000)
+block,1560.0,2000.0, 30.0,270.0, 132.0,140.0
+*get,vid_plate,volu,0,num,max
+cm,PLATE2,volu,vid_plate
 allsel,all
 
 ! round holes in BEAM for dowels (exact diameter)
@@ -47,7 +66,7 @@ WPCSYS,-1
 WPOFFS,0,0,0
 WPROTA,0,0,0
 
-CYL4,3540.0,200.0,6.0,,,,140
+CYL4,1660.0,90.0,12,,,,200.0
 *get,vhole,volu,0,num,max
 
 cmsel,s,BEAM
@@ -63,7 +82,7 @@ WPCSYS,-1
 WPOFFS,0,0,0
 WPROTA,0,0,0
 
-CYL4,3660.0,200.0,6.0,,,,140
+CYL4,1780.0,90.0,12,,,,200.0
 *get,vhole,volu,0,num,max
 
 cmsel,s,BEAM
@@ -79,7 +98,7 @@ WPCSYS,-1
 WPOFFS,0,0,0
 WPROTA,0,0,0
 
-CYL4,3780.0,200.0,6.0,,,,140
+CYL4,1900.0,90.0,12,,,,200.0
 *get,vhole,volu,0,num,max
 
 cmsel,s,BEAM
@@ -95,7 +114,7 @@ WPCSYS,-1
 WPOFFS,0,0,0
 WPROTA,0,0,0
 
-CYL4,3900.0,200.0,6.0,,,,140
+CYL4,1660.0,150.0,12,,,,200.0
 *get,vhole,volu,0,num,max
 
 cmsel,s,BEAM
@@ -106,43 +125,125 @@ allsel,all
 vdele,vhole
 allsel,all
 
-! slotted holes in PLATE (elongated in Y only)
-allsel,all
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,0
+WPROTA,0,0,0
 
+CYL4,1780.0,150.0,12,,,,200.0
+*get,vhole,volu,0,num,max
+
+cmsel,s,BEAM
+vsbv,all,vhole
+cmdele,BEAM
+cm,BEAM,volu
 allsel,all
-cmsel,s,PLATE
+vdele,vhole
+allsel,all
 
 CSYS,0
 WPCSYS,-1
-WPOFFS,0,0,66.0
+WPOFFS,0,0,0
 WPROTA,0,0,0
 
-CYL4,3540.0,199.5,6.0,,,,8
+CYL4,1900.0,150.0,12,,,,200.0
+*get,vhole,volu,0,num,max
+
+cmsel,s,BEAM
+vsbv,all,vhole
+cmdele,BEAM
+cm,BEAM,volu
+allsel,all
+vdele,vhole
+allsel,all
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,0
+WPROTA,0,0,0
+
+CYL4,1660.0,210.0,12,,,,200.0
+*get,vhole,volu,0,num,max
+
+cmsel,s,BEAM
+vsbv,all,vhole
+cmdele,BEAM
+cm,BEAM,volu
+allsel,all
+vdele,vhole
+allsel,all
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,0
+WPROTA,0,0,0
+
+CYL4,1780.0,210.0,12,,,,200.0
+*get,vhole,volu,0,num,max
+
+cmsel,s,BEAM
+vsbv,all,vhole
+cmdele,BEAM
+cm,BEAM,volu
+allsel,all
+vdele,vhole
+allsel,all
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,0
+WPROTA,0,0,0
+
+CYL4,1900.0,210.0,12,,,,200.0
+*get,vhole,volu,0,num,max
+
+cmsel,s,BEAM
+vsbv,all,vhole
+cmdele,BEAM
+cm,BEAM,volu
+allsel,all
+vdele,vhole
+allsel,all
+
+! slotted holes in plate(s) (elongated in Y only)
+allsel,all
+
+! Slots in PLATE1
+
+allsel,all
+cmsel,s,PLATE1
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,60.0
+WPROTA,0,0,0
+
+CYL4,1660.0,89.5,12,,,,8
 *get,vtool,volu,0,num,max
-cmsel,s,PLATE
+cmsel,s,PLATE1
 vsbv,all,vtool
-cmdele,PLATE
-cm,PLATE,volu
+cmdele,PLATE1
+cm,PLATE1,volu
 allsel,all
 vdele,vtool
 allsel,all
 
-CYL4,3540.0,200.5,6.0,,,,8
+CYL4,1660.0,90.5,12,,,,8
 *get,vtool,volu,0,num,max
-cmsel,s,PLATE
+cmsel,s,PLATE1
 vsbv,all,vtool
-cmdele,PLATE
-cm,PLATE,volu
+cmdele,PLATE1
+cm,PLATE1,volu
 allsel,all
 vdele,vtool
 allsel,all
 
-block,3534.0,3546.0, 199.5,200.5, 66.0,74.0
+block,1648.0,1672.0, 89.5,90.5, 60.0,68.0
 *get,vtool,volu,0,num,max
-cmsel,s,PLATE
+cmsel,s,PLATE1
 vsbv,all,vtool
-cmdele,PLATE
-cm,PLATE,volu
+cmdele,PLATE1
+cm,PLATE1,volu
 allsel,all
 vdele,vtool
 allsel,all
@@ -151,39 +252,39 @@ WPOFFS,0,0,0
 allsel,all
 
 allsel,all
-cmsel,s,PLATE
+cmsel,s,PLATE1
 
 CSYS,0
 WPCSYS,-1
-WPOFFS,0,0,66.0
+WPOFFS,0,0,60.0
 WPROTA,0,0,0
 
-CYL4,3660.0,199.5,6.0,,,,8
+CYL4,1780.0,89.5,12,,,,8
 *get,vtool,volu,0,num,max
-cmsel,s,PLATE
+cmsel,s,PLATE1
 vsbv,all,vtool
-cmdele,PLATE
-cm,PLATE,volu
+cmdele,PLATE1
+cm,PLATE1,volu
 allsel,all
 vdele,vtool
 allsel,all
 
-CYL4,3660.0,200.5,6.0,,,,8
+CYL4,1780.0,90.5,12,,,,8
 *get,vtool,volu,0,num,max
-cmsel,s,PLATE
+cmsel,s,PLATE1
 vsbv,all,vtool
-cmdele,PLATE
-cm,PLATE,volu
+cmdele,PLATE1
+cm,PLATE1,volu
 allsel,all
 vdele,vtool
 allsel,all
 
-block,3654.0,3666.0, 199.5,200.5, 66.0,74.0
+block,1768.0,1792.0, 89.5,90.5, 60.0,68.0
 *get,vtool,volu,0,num,max
-cmsel,s,PLATE
+cmsel,s,PLATE1
 vsbv,all,vtool
-cmdele,PLATE
-cm,PLATE,volu
+cmdele,PLATE1
+cm,PLATE1,volu
 allsel,all
 vdele,vtool
 allsel,all
@@ -192,39 +293,39 @@ WPOFFS,0,0,0
 allsel,all
 
 allsel,all
-cmsel,s,PLATE
+cmsel,s,PLATE1
 
 CSYS,0
 WPCSYS,-1
-WPOFFS,0,0,66.0
+WPOFFS,0,0,60.0
 WPROTA,0,0,0
 
-CYL4,3780.0,199.5,6.0,,,,8
+CYL4,1900.0,89.5,12,,,,8
 *get,vtool,volu,0,num,max
-cmsel,s,PLATE
+cmsel,s,PLATE1
 vsbv,all,vtool
-cmdele,PLATE
-cm,PLATE,volu
+cmdele,PLATE1
+cm,PLATE1,volu
 allsel,all
 vdele,vtool
 allsel,all
 
-CYL4,3780.0,200.5,6.0,,,,8
+CYL4,1900.0,90.5,12,,,,8
 *get,vtool,volu,0,num,max
-cmsel,s,PLATE
+cmsel,s,PLATE1
 vsbv,all,vtool
-cmdele,PLATE
-cm,PLATE,volu
+cmdele,PLATE1
+cm,PLATE1,volu
 allsel,all
 vdele,vtool
 allsel,all
 
-block,3774.0,3786.0, 199.5,200.5, 66.0,74.0
+block,1888.0,1912.0, 89.5,90.5, 60.0,68.0
 *get,vtool,volu,0,num,max
-cmsel,s,PLATE
+cmsel,s,PLATE1
 vsbv,all,vtool
-cmdele,PLATE
-cm,PLATE,volu
+cmdele,PLATE1
+cm,PLATE1,volu
 allsel,all
 vdele,vtool
 allsel,all
@@ -233,39 +334,615 @@ WPOFFS,0,0,0
 allsel,all
 
 allsel,all
-cmsel,s,PLATE
+cmsel,s,PLATE1
 
 CSYS,0
 WPCSYS,-1
-WPOFFS,0,0,66.0
+WPOFFS,0,0,60.0
 WPROTA,0,0,0
 
-CYL4,3900.0,199.5,6.0,,,,8
+CYL4,1660.0,149.5,12,,,,8
 *get,vtool,volu,0,num,max
-cmsel,s,PLATE
+cmsel,s,PLATE1
 vsbv,all,vtool
-cmdele,PLATE
-cm,PLATE,volu
+cmdele,PLATE1
+cm,PLATE1,volu
 allsel,all
 vdele,vtool
 allsel,all
 
-CYL4,3900.0,200.5,6.0,,,,8
+CYL4,1660.0,150.5,12,,,,8
 *get,vtool,volu,0,num,max
-cmsel,s,PLATE
+cmsel,s,PLATE1
 vsbv,all,vtool
-cmdele,PLATE
-cm,PLATE,volu
+cmdele,PLATE1
+cm,PLATE1,volu
 allsel,all
 vdele,vtool
 allsel,all
 
-block,3894.0,3906.0, 199.5,200.5, 66.0,74.0
+block,1648.0,1672.0, 149.5,150.5, 60.0,68.0
 *get,vtool,volu,0,num,max
-cmsel,s,PLATE
+cmsel,s,PLATE1
 vsbv,all,vtool
-cmdele,PLATE
-cm,PLATE,volu
+cmdele,PLATE1
+cm,PLATE1,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+WPOFFS,0,0,0
+allsel,all
+
+allsel,all
+cmsel,s,PLATE1
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,60.0
+WPROTA,0,0,0
+
+CYL4,1780.0,149.5,12,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE1
+vsbv,all,vtool
+cmdele,PLATE1
+cm,PLATE1,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+CYL4,1780.0,150.5,12,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE1
+vsbv,all,vtool
+cmdele,PLATE1
+cm,PLATE1,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+block,1768.0,1792.0, 149.5,150.5, 60.0,68.0
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE1
+vsbv,all,vtool
+cmdele,PLATE1
+cm,PLATE1,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+WPOFFS,0,0,0
+allsel,all
+
+allsel,all
+cmsel,s,PLATE1
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,60.0
+WPROTA,0,0,0
+
+CYL4,1900.0,149.5,12,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE1
+vsbv,all,vtool
+cmdele,PLATE1
+cm,PLATE1,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+CYL4,1900.0,150.5,12,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE1
+vsbv,all,vtool
+cmdele,PLATE1
+cm,PLATE1,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+block,1888.0,1912.0, 149.5,150.5, 60.0,68.0
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE1
+vsbv,all,vtool
+cmdele,PLATE1
+cm,PLATE1,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+WPOFFS,0,0,0
+allsel,all
+
+allsel,all
+cmsel,s,PLATE1
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,60.0
+WPROTA,0,0,0
+
+CYL4,1660.0,209.5,12,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE1
+vsbv,all,vtool
+cmdele,PLATE1
+cm,PLATE1,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+CYL4,1660.0,210.5,12,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE1
+vsbv,all,vtool
+cmdele,PLATE1
+cm,PLATE1,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+block,1648.0,1672.0, 209.5,210.5, 60.0,68.0
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE1
+vsbv,all,vtool
+cmdele,PLATE1
+cm,PLATE1,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+WPOFFS,0,0,0
+allsel,all
+
+allsel,all
+cmsel,s,PLATE1
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,60.0
+WPROTA,0,0,0
+
+CYL4,1780.0,209.5,12,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE1
+vsbv,all,vtool
+cmdele,PLATE1
+cm,PLATE1,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+CYL4,1780.0,210.5,12,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE1
+vsbv,all,vtool
+cmdele,PLATE1
+cm,PLATE1,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+block,1768.0,1792.0, 209.5,210.5, 60.0,68.0
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE1
+vsbv,all,vtool
+cmdele,PLATE1
+cm,PLATE1,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+WPOFFS,0,0,0
+allsel,all
+
+allsel,all
+cmsel,s,PLATE1
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,60.0
+WPROTA,0,0,0
+
+CYL4,1900.0,209.5,12,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE1
+vsbv,all,vtool
+cmdele,PLATE1
+cm,PLATE1,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+CYL4,1900.0,210.5,12,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE1
+vsbv,all,vtool
+cmdele,PLATE1
+cm,PLATE1,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+block,1888.0,1912.0, 209.5,210.5, 60.0,68.0
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE1
+vsbv,all,vtool
+cmdele,PLATE1
+cm,PLATE1,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+WPOFFS,0,0,0
+allsel,all
+
+! Slots in PLATE2
+
+allsel,all
+cmsel,s,PLATE2
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,132.0
+WPROTA,0,0,0
+
+CYL4,1660.0,89.5,12,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE2
+vsbv,all,vtool
+cmdele,PLATE2
+cm,PLATE2,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+CYL4,1660.0,90.5,12,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE2
+vsbv,all,vtool
+cmdele,PLATE2
+cm,PLATE2,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+block,1648.0,1672.0, 89.5,90.5, 132.0,140.0
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE2
+vsbv,all,vtool
+cmdele,PLATE2
+cm,PLATE2,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+WPOFFS,0,0,0
+allsel,all
+
+allsel,all
+cmsel,s,PLATE2
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,132.0
+WPROTA,0,0,0
+
+CYL4,1780.0,89.5,12,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE2
+vsbv,all,vtool
+cmdele,PLATE2
+cm,PLATE2,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+CYL4,1780.0,90.5,12,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE2
+vsbv,all,vtool
+cmdele,PLATE2
+cm,PLATE2,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+block,1768.0,1792.0, 89.5,90.5, 132.0,140.0
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE2
+vsbv,all,vtool
+cmdele,PLATE2
+cm,PLATE2,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+WPOFFS,0,0,0
+allsel,all
+
+allsel,all
+cmsel,s,PLATE2
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,132.0
+WPROTA,0,0,0
+
+CYL4,1900.0,89.5,12,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE2
+vsbv,all,vtool
+cmdele,PLATE2
+cm,PLATE2,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+CYL4,1900.0,90.5,12,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE2
+vsbv,all,vtool
+cmdele,PLATE2
+cm,PLATE2,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+block,1888.0,1912.0, 89.5,90.5, 132.0,140.0
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE2
+vsbv,all,vtool
+cmdele,PLATE2
+cm,PLATE2,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+WPOFFS,0,0,0
+allsel,all
+
+allsel,all
+cmsel,s,PLATE2
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,132.0
+WPROTA,0,0,0
+
+CYL4,1660.0,149.5,12,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE2
+vsbv,all,vtool
+cmdele,PLATE2
+cm,PLATE2,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+CYL4,1660.0,150.5,12,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE2
+vsbv,all,vtool
+cmdele,PLATE2
+cm,PLATE2,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+block,1648.0,1672.0, 149.5,150.5, 132.0,140.0
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE2
+vsbv,all,vtool
+cmdele,PLATE2
+cm,PLATE2,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+WPOFFS,0,0,0
+allsel,all
+
+allsel,all
+cmsel,s,PLATE2
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,132.0
+WPROTA,0,0,0
+
+CYL4,1780.0,149.5,12,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE2
+vsbv,all,vtool
+cmdele,PLATE2
+cm,PLATE2,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+CYL4,1780.0,150.5,12,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE2
+vsbv,all,vtool
+cmdele,PLATE2
+cm,PLATE2,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+block,1768.0,1792.0, 149.5,150.5, 132.0,140.0
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE2
+vsbv,all,vtool
+cmdele,PLATE2
+cm,PLATE2,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+WPOFFS,0,0,0
+allsel,all
+
+allsel,all
+cmsel,s,PLATE2
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,132.0
+WPROTA,0,0,0
+
+CYL4,1900.0,149.5,12,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE2
+vsbv,all,vtool
+cmdele,PLATE2
+cm,PLATE2,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+CYL4,1900.0,150.5,12,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE2
+vsbv,all,vtool
+cmdele,PLATE2
+cm,PLATE2,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+block,1888.0,1912.0, 149.5,150.5, 132.0,140.0
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE2
+vsbv,all,vtool
+cmdele,PLATE2
+cm,PLATE2,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+WPOFFS,0,0,0
+allsel,all
+
+allsel,all
+cmsel,s,PLATE2
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,132.0
+WPROTA,0,0,0
+
+CYL4,1660.0,209.5,12,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE2
+vsbv,all,vtool
+cmdele,PLATE2
+cm,PLATE2,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+CYL4,1660.0,210.5,12,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE2
+vsbv,all,vtool
+cmdele,PLATE2
+cm,PLATE2,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+block,1648.0,1672.0, 209.5,210.5, 132.0,140.0
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE2
+vsbv,all,vtool
+cmdele,PLATE2
+cm,PLATE2,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+WPOFFS,0,0,0
+allsel,all
+
+allsel,all
+cmsel,s,PLATE2
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,132.0
+WPROTA,0,0,0
+
+CYL4,1780.0,209.5,12,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE2
+vsbv,all,vtool
+cmdele,PLATE2
+cm,PLATE2,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+CYL4,1780.0,210.5,12,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE2
+vsbv,all,vtool
+cmdele,PLATE2
+cm,PLATE2,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+block,1768.0,1792.0, 209.5,210.5, 132.0,140.0
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE2
+vsbv,all,vtool
+cmdele,PLATE2
+cm,PLATE2,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+WPOFFS,0,0,0
+allsel,all
+
+allsel,all
+cmsel,s,PLATE2
+
+CSYS,0
+WPCSYS,-1
+WPOFFS,0,0,132.0
+WPROTA,0,0,0
+
+CYL4,1900.0,209.5,12,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE2
+vsbv,all,vtool
+cmdele,PLATE2
+cm,PLATE2,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+CYL4,1900.0,210.5,12,,,,8
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE2
+vsbv,all,vtool
+cmdele,PLATE2
+cm,PLATE2,volu
+allsel,all
+vdele,vtool
+allsel,all
+
+block,1888.0,1912.0, 209.5,210.5, 132.0,140.0
+*get,vtool,volu,0,num,max
+cmsel,s,PLATE2
+vsbv,all,vtool
+cmdele,PLATE2
+cm,PLATE2,volu
 allsel,all
 vdele,vtool
 allsel,all
@@ -284,13 +961,18 @@ cmdele,DOWEL1
 cmdele,DOWEL2
 cmdele,DOWEL3
 cmdele,DOWEL4
+cmdele,DOWEL5
+cmdele,DOWEL6
+cmdele,DOWEL7
+cmdele,DOWEL8
+cmdele,DOWEL9
 
 allsel,all
 csys,0
 wpcsys,0
 wpoffs,0,0,0
 
-cyl4,3540.0,200.0,6.0,,,0,140
+cyl4,1660.0,90.0,12,,,0,200.0
 *get,vid_dowel,volu,0,num,max
 cm,DOWEL1,volu,vid_dowel
 
@@ -301,7 +983,7 @@ csys,0
 wpcsys,0
 wpoffs,0,0,0
 
-cyl4,3660.0,200.0,6.0,,,0,140
+cyl4,1780.0,90.0,12,,,0,200.0
 *get,vid_dowel,volu,0,num,max
 cm,DOWEL2,volu,vid_dowel
 
@@ -312,7 +994,7 @@ csys,0
 wpcsys,0
 wpoffs,0,0,0
 
-cyl4,3780.0,200.0,6.0,,,0,140
+cyl4,1900.0,90.0,12,,,0,200.0
 *get,vid_dowel,volu,0,num,max
 cm,DOWEL3,volu,vid_dowel
 
@@ -323,9 +1005,64 @@ csys,0
 wpcsys,0
 wpoffs,0,0,0
 
-cyl4,3900.0,200.0,6.0,,,0,140
+cyl4,1660.0,150.0,12,,,0,200.0
 *get,vid_dowel,volu,0,num,max
 cm,DOWEL4,volu,vid_dowel
+
+allsel,all
+
+allsel,all
+csys,0
+wpcsys,0
+wpoffs,0,0,0
+
+cyl4,1780.0,150.0,12,,,0,200.0
+*get,vid_dowel,volu,0,num,max
+cm,DOWEL5,volu,vid_dowel
+
+allsel,all
+
+allsel,all
+csys,0
+wpcsys,0
+wpoffs,0,0,0
+
+cyl4,1900.0,150.0,12,,,0,200.0
+*get,vid_dowel,volu,0,num,max
+cm,DOWEL6,volu,vid_dowel
+
+allsel,all
+
+allsel,all
+csys,0
+wpcsys,0
+wpoffs,0,0,0
+
+cyl4,1660.0,210.0,12,,,0,200.0
+*get,vid_dowel,volu,0,num,max
+cm,DOWEL7,volu,vid_dowel
+
+allsel,all
+
+allsel,all
+csys,0
+wpcsys,0
+wpoffs,0,0,0
+
+cyl4,1780.0,210.0,12,,,0,200.0
+*get,vid_dowel,volu,0,num,max
+cm,DOWEL8,volu,vid_dowel
+
+allsel,all
+
+allsel,all
+csys,0
+wpcsys,0
+wpoffs,0,0,0
+
+cyl4,1900.0,210.0,12,,,0,200.0
+*get,vid_dowel,volu,0,num,max
+cm,DOWEL9,volu,vid_dowel
 
 allsel,all
 
@@ -335,6 +1072,11 @@ cmsel,s,DOWEL1
 cmsel,a,DOWEL2
 cmsel,a,DOWEL3
 cmsel,a,DOWEL4
+cmsel,a,DOWEL5
+cmsel,a,DOWEL6
+cmsel,a,DOWEL7
+cmsel,a,DOWEL8
+cmsel,a,DOWEL9
 cm,DOWELS,volu
 allsel,all
 
@@ -344,36 +1086,27 @@ cmsel,s,BEAM
 *get,n_beam,volu,0,count
 /com, BEAM selected vols = %n_beam%
 allsel,all
-cmsel,s,PLATE
-*get,n_plate,volu,0,count
-/com, PLATE selected vols = %n_plate%
+cmsel,s,PLATE1
+*get,n_plate1,volu,0,count
+/com, PLATE1 selected vols = %n_plate1%
+allsel,all
+cmsel,s,PLATE2
+*get,n_plate2,volu,0,count
+/com, PLATE2 selected vols = %n_plate2%
 allsel,all
 cmsel,s,DOWELS
 *get,n_dowels,volu,0,count
 /com, DOWELS selected vols = %n_dowels%
 allsel,all
 
-! material assignment by components (robust)
+! ---- pre-mesh volume attribute hints (vatt) ----
+! These set the default, but emodif after meshing is authoritative.
 
-! BEAM -> wood
 allsel,all
-vsel,none
-cmsel,a,BEAM
+vatt,2,,1
+
+cmsel,s,BEAM
 vatt,1,,1
-allsel,all
-
-! PLATE -> steel
-allsel,all
-vsel,none
-cmsel,a,PLATE
-vatt,2,,1
-allsel,all
-
-! DOWELS -> steel
-allsel,all
-vsel,none
-cmsel,a,DOWELS
-vatt,2,,1
 allsel,all
 
 ! debug each component separately
@@ -381,9 +1114,13 @@ allsel,all
 allsel,all
 cmsel,s,BEAM
 vlist,all
-/com, --- PLATE component ---
+/com, --- PLATE1 component ---
 allsel,all
-cmsel,s,PLATE
+cmsel,s,PLATE1
+vlist,all
+/com, --- PLATE2 component ---
+allsel,all
+cmsel,s,PLATE2
 vlist,all
 /com, --- DOWELS component ---
 allsel,all
@@ -395,18 +1132,80 @@ allsel,all
 allsel,all
 vlist,all
 
+! Local mesh refinement around dowel holes (LESIZE = 10.0 mm)
+allsel,all
+
+! Dowel 1  x=1660.0  y=90.0
+LSEL,S,LOC,X,1632.00,1688.00
+LSEL,R,LOC,Y,62.00,118.00
+LESIZE,ALL,10.00
+ALLSEL,ALL
+
+! Dowel 2  x=1780.0  y=90.0
+LSEL,S,LOC,X,1752.00,1808.00
+LSEL,R,LOC,Y,62.00,118.00
+LESIZE,ALL,10.00
+ALLSEL,ALL
+
+! Dowel 3  x=1900.0  y=90.0
+LSEL,S,LOC,X,1872.00,1928.00
+LSEL,R,LOC,Y,62.00,118.00
+LESIZE,ALL,10.00
+ALLSEL,ALL
+
+! Dowel 4  x=1660.0  y=150.0
+LSEL,S,LOC,X,1632.00,1688.00
+LSEL,R,LOC,Y,122.00,178.00
+LESIZE,ALL,10.00
+ALLSEL,ALL
+
+! Dowel 5  x=1780.0  y=150.0
+LSEL,S,LOC,X,1752.00,1808.00
+LSEL,R,LOC,Y,122.00,178.00
+LESIZE,ALL,10.00
+ALLSEL,ALL
+
+! Dowel 6  x=1900.0  y=150.0
+LSEL,S,LOC,X,1872.00,1928.00
+LSEL,R,LOC,Y,122.00,178.00
+LESIZE,ALL,10.00
+ALLSEL,ALL
+
+! Dowel 7  x=1660.0  y=210.0
+LSEL,S,LOC,X,1632.00,1688.00
+LSEL,R,LOC,Y,182.00,238.00
+LESIZE,ALL,10.00
+ALLSEL,ALL
+
+! Dowel 8  x=1780.0  y=210.0
+LSEL,S,LOC,X,1752.00,1808.00
+LSEL,R,LOC,Y,182.00,238.00
+LESIZE,ALL,10.00
+ALLSEL,ALL
+
+! Dowel 9  x=1900.0  y=210.0
+LSEL,S,LOC,X,1872.00,1928.00
+LSEL,R,LOC,Y,182.00,238.00
+LESIZE,ALL,10.00
+ALLSEL,ALL
+
 ! meshing
 mshape,1,3d
 mshkey,0
-esize,20.0
+esize,40.0
 
 ! mesh BEAM
 cmsel,s,BEAM
 vmesh,all
 allsel,all
 
-! mesh PLATE
-cmsel,s,PLATE
+! mesh PLATE1
+cmsel,s,PLATE1
+vmesh,all
+allsel,all
+
+! mesh PLATE2
+cmsel,s,PLATE2
 vmesh,all
 allsel,all
 
@@ -419,190 +1218,894 @@ allsel,all
 *get,ne,elem,0,count
 /com, NODE=%nn%  ELEM=%ne%
 
-! ---------------- CONTACT DEFINITION ----------------
-! frictionless contact: dowel <-> beam and dowel <-> plate
+! ---- post-mesh material assignment (emodif) ----
+
+! BEAM -> timber (mat 1)
+allsel,all
+cmsel,s,BEAM
+esla,s
+emodif,all,mat,1
 allsel,all
 
-! contact element types
+! PLATE1 -> steel (mat 2)
+allsel,all
+cmsel,s,PLATE1
+esla,s
+emodif,all,mat,2
+allsel,all
+
+! PLATE2 -> steel (mat 2)
+allsel,all
+cmsel,s,PLATE2
+esla,s
+emodif,all,mat,2
+allsel,all
+
+! DOWELS -> steel (mat 2)
+allsel,all
+cmsel,s,DOWELS
+esla,s
+emodif,all,mat,2
+allsel,all
+
+! ============================================================
+! FRICTIONAL CONTACT - Augmented Lagrangian
+! mat 3: steel-on-timber (mu=0.3)  mat 4: steel-on-steel (mu=0.15)
+! 9 dowels x (1 beam pair + 2 plate pair(s)) = 27 real sets
+! ============================================================
+/prep7
+allsel,all
+
+! friction contact materials
+mp,mu,3,0.3
+mp,mu,4,0.15
+
 et,2,targe170
 et,3,conta174
 
-! basic contact options
-keyopt,3,4,0
+! Augmented Lagrangian (keyopt 2=0): avoids MPC self-contact issue
+keyopt,3,2,0
+! Standard frictional contact (keyopt 12=0)
 keyopt,3,12,0
+! Ignore initial gap/penetration -> prevents initial offset errors
+keyopt,3,9,1
 
-! real constant sets
 r,1
 r,2
 r,3
 r,4
+r,5
+r,6
+r,7
+r,8
+r,9
+r,10
+r,11
+r,12
+r,13
+r,14
+r,15
+r,16
+r,17
+r,18
+r,19
+r,20
+r,21
+r,22
+r,23
+r,24
+r,25
+r,26
+r,27
 
-! ---- CONTACT SET FOR DOWEL 1 at x=3540.0, y=200.0 ----
+! ---- DOWEL 1  x=1660.0  y=90.0 ----
+! Pair 1: dowel 1 -> beam hole (mu=0.3)
 
-! target on dowel surface
+! TARGET: dowel cylindrical surface (full Z)
 allsel,all
 cmsel,s,DOWEL1
 nslv,s,1
-esln,s
+nsel,r,loc,x,1624.0,1696.0
+nsel,r,loc,y,54.0,126.0
 type,2
 real,1
 mat,2
 esurf
 allsel,all
 
-! contact on timber hole region
+! CONTACT: timber hole surface (mat 3, mu=0.3)
 allsel,all
 cmsel,s,BEAM
-nsle,s
-nsel,r,loc,x,3528.0,3552.0
-nsel,r,loc,y,188.0,212.0
-nsel,r,loc,z,0,140
-esln,s
+nslv,s,1
+nsel,r,loc,x,1624.0,1696.0
+nsel,r,loc,y,54.0,126.0
+nsel,r,loc,z,0,200.0
 type,3
 real,1
-mat,1
+mat,3
 esurf
 allsel,all
 
-! contact on plate slot region
+! Pair 2: dowel 1 -> PLATE1 slot (mu=0.15)
+
+! TARGET: dowel 1 nodes in PLATE1 Z-zone
 allsel,all
-cmsel,s,PLATE
-nsle,s
-nsel,r,loc,x,3528.0,3552.0
-nsel,r,loc,y,30.0,370.0
-nsel,r,loc,z,66.0,74.0
-esln,s
-type,3
-real,1
+cmsel,s,DOWEL1
+nslv,s,1
+nsel,r,loc,x,1624.0,1696.0
+nsel,r,loc,y,54.0,126.0
+nsel,r,loc,z,60.0,68.0
+type,2
+real,2
 mat,2
 esurf
 allsel,all
 
-! ---- CONTACT SET FOR DOWEL 2 at x=3660.0, y=200.0 ----
+! CONTACT: PLATE1 slot nodes (mat 4, mu=0.15)
+allsel,all
+cmsel,s,PLATE1
+nslv,s,1
+nsel,r,loc,x,1624.0,1696.0
+nsel,r,loc,y,54.0,126.0
+nsel,r,loc,z,60.0,68.0
+type,3
+real,2
+mat,4
+esurf
+allsel,all
 
-! target on dowel surface
+! Pair 3: dowel 1 -> PLATE2 slot (mu=0.15)
+
+! TARGET: dowel 1 nodes in PLATE2 Z-zone
+allsel,all
+cmsel,s,DOWEL1
+nslv,s,1
+nsel,r,loc,x,1624.0,1696.0
+nsel,r,loc,y,54.0,126.0
+nsel,r,loc,z,132.0,140.0
+type,2
+real,3
+mat,2
+esurf
+allsel,all
+
+! CONTACT: PLATE2 slot nodes (mat 4, mu=0.15)
+allsel,all
+cmsel,s,PLATE2
+nslv,s,1
+nsel,r,loc,x,1624.0,1696.0
+nsel,r,loc,y,54.0,126.0
+nsel,r,loc,z,132.0,140.0
+type,3
+real,3
+mat,4
+esurf
+allsel,all
+
+! ---- DOWEL 2  x=1780.0  y=90.0 ----
+! Pair 4: dowel 2 -> beam hole (mu=0.3)
+
+! TARGET: dowel cylindrical surface (full Z)
 allsel,all
 cmsel,s,DOWEL2
 nslv,s,1
-esln,s
+nsel,r,loc,x,1744.0,1816.0
+nsel,r,loc,y,54.0,126.0
 type,2
-real,2
+real,4
 mat,2
 esurf
 allsel,all
 
-! contact on timber hole region
+! CONTACT: timber hole surface (mat 3, mu=0.3)
 allsel,all
 cmsel,s,BEAM
-nsle,s
-nsel,r,loc,x,3648.0,3672.0
-nsel,r,loc,y,188.0,212.0
-nsel,r,loc,z,0,140
-esln,s
+nslv,s,1
+nsel,r,loc,x,1744.0,1816.0
+nsel,r,loc,y,54.0,126.0
+nsel,r,loc,z,0,200.0
 type,3
-real,2
-mat,1
+real,4
+mat,3
 esurf
 allsel,all
 
-! contact on plate slot region
+! Pair 5: dowel 2 -> PLATE1 slot (mu=0.15)
+
+! TARGET: dowel 2 nodes in PLATE1 Z-zone
 allsel,all
-cmsel,s,PLATE
-nsle,s
-nsel,r,loc,x,3648.0,3672.0
-nsel,r,loc,y,30.0,370.0
-nsel,r,loc,z,66.0,74.0
-esln,s
-type,3
-real,2
+cmsel,s,DOWEL2
+nslv,s,1
+nsel,r,loc,x,1744.0,1816.0
+nsel,r,loc,y,54.0,126.0
+nsel,r,loc,z,60.0,68.0
+type,2
+real,5
 mat,2
 esurf
 allsel,all
 
-! ---- CONTACT SET FOR DOWEL 3 at x=3780.0, y=200.0 ----
+! CONTACT: PLATE1 slot nodes (mat 4, mu=0.15)
+allsel,all
+cmsel,s,PLATE1
+nslv,s,1
+nsel,r,loc,x,1744.0,1816.0
+nsel,r,loc,y,54.0,126.0
+nsel,r,loc,z,60.0,68.0
+type,3
+real,5
+mat,4
+esurf
+allsel,all
 
-! target on dowel surface
+! Pair 6: dowel 2 -> PLATE2 slot (mu=0.15)
+
+! TARGET: dowel 2 nodes in PLATE2 Z-zone
+allsel,all
+cmsel,s,DOWEL2
+nslv,s,1
+nsel,r,loc,x,1744.0,1816.0
+nsel,r,loc,y,54.0,126.0
+nsel,r,loc,z,132.0,140.0
+type,2
+real,6
+mat,2
+esurf
+allsel,all
+
+! CONTACT: PLATE2 slot nodes (mat 4, mu=0.15)
+allsel,all
+cmsel,s,PLATE2
+nslv,s,1
+nsel,r,loc,x,1744.0,1816.0
+nsel,r,loc,y,54.0,126.0
+nsel,r,loc,z,132.0,140.0
+type,3
+real,6
+mat,4
+esurf
+allsel,all
+
+! ---- DOWEL 3  x=1900.0  y=90.0 ----
+! Pair 7: dowel 3 -> beam hole (mu=0.3)
+
+! TARGET: dowel cylindrical surface (full Z)
 allsel,all
 cmsel,s,DOWEL3
 nslv,s,1
-esln,s
+nsel,r,loc,x,1864.0,1936.0
+nsel,r,loc,y,54.0,126.0
 type,2
-real,3
+real,7
 mat,2
 esurf
 allsel,all
 
-! contact on timber hole region
+! CONTACT: timber hole surface (mat 3, mu=0.3)
 allsel,all
 cmsel,s,BEAM
-nsle,s
-nsel,r,loc,x,3768.0,3792.0
-nsel,r,loc,y,188.0,212.0
-nsel,r,loc,z,0,140
-esln,s
+nslv,s,1
+nsel,r,loc,x,1864.0,1936.0
+nsel,r,loc,y,54.0,126.0
+nsel,r,loc,z,0,200.0
 type,3
-real,3
-mat,1
+real,7
+mat,3
 esurf
 allsel,all
 
-! contact on plate slot region
+! Pair 8: dowel 3 -> PLATE1 slot (mu=0.15)
+
+! TARGET: dowel 3 nodes in PLATE1 Z-zone
 allsel,all
-cmsel,s,PLATE
-nsle,s
-nsel,r,loc,x,3768.0,3792.0
-nsel,r,loc,y,30.0,370.0
-nsel,r,loc,z,66.0,74.0
-esln,s
-type,3
-real,3
+cmsel,s,DOWEL3
+nslv,s,1
+nsel,r,loc,x,1864.0,1936.0
+nsel,r,loc,y,54.0,126.0
+nsel,r,loc,z,60.0,68.0
+type,2
+real,8
 mat,2
 esurf
 allsel,all
 
-! ---- CONTACT SET FOR DOWEL 4 at x=3900.0, y=200.0 ----
+! CONTACT: PLATE1 slot nodes (mat 4, mu=0.15)
+allsel,all
+cmsel,s,PLATE1
+nslv,s,1
+nsel,r,loc,x,1864.0,1936.0
+nsel,r,loc,y,54.0,126.0
+nsel,r,loc,z,60.0,68.0
+type,3
+real,8
+mat,4
+esurf
+allsel,all
 
-! target on dowel surface
+! Pair 9: dowel 3 -> PLATE2 slot (mu=0.15)
+
+! TARGET: dowel 3 nodes in PLATE2 Z-zone
+allsel,all
+cmsel,s,DOWEL3
+nslv,s,1
+nsel,r,loc,x,1864.0,1936.0
+nsel,r,loc,y,54.0,126.0
+nsel,r,loc,z,132.0,140.0
+type,2
+real,9
+mat,2
+esurf
+allsel,all
+
+! CONTACT: PLATE2 slot nodes (mat 4, mu=0.15)
+allsel,all
+cmsel,s,PLATE2
+nslv,s,1
+nsel,r,loc,x,1864.0,1936.0
+nsel,r,loc,y,54.0,126.0
+nsel,r,loc,z,132.0,140.0
+type,3
+real,9
+mat,4
+esurf
+allsel,all
+
+! ---- DOWEL 4  x=1660.0  y=150.0 ----
+! Pair 10: dowel 4 -> beam hole (mu=0.3)
+
+! TARGET: dowel cylindrical surface (full Z)
 allsel,all
 cmsel,s,DOWEL4
 nslv,s,1
-esln,s
+nsel,r,loc,x,1624.0,1696.0
+nsel,r,loc,y,114.0,186.0
 type,2
-real,4
+real,10
 mat,2
 esurf
 allsel,all
 
-! contact on timber hole region
+! CONTACT: timber hole surface (mat 3, mu=0.3)
 allsel,all
 cmsel,s,BEAM
-nsle,s
-nsel,r,loc,x,3888.0,3912.0
-nsel,r,loc,y,188.0,212.0
-nsel,r,loc,z,0,140
-esln,s
+nslv,s,1
+nsel,r,loc,x,1624.0,1696.0
+nsel,r,loc,y,114.0,186.0
+nsel,r,loc,z,0,200.0
 type,3
-real,4
-mat,1
+real,10
+mat,3
 esurf
 allsel,all
 
-! contact on plate slot region
+! Pair 11: dowel 4 -> PLATE1 slot (mu=0.15)
+
+! TARGET: dowel 4 nodes in PLATE1 Z-zone
 allsel,all
-cmsel,s,PLATE
-nsle,s
-nsel,r,loc,x,3888.0,3912.0
-nsel,r,loc,y,30.0,370.0
-nsel,r,loc,z,66.0,74.0
-esln,s
-type,3
-real,4
+cmsel,s,DOWEL4
+nslv,s,1
+nsel,r,loc,x,1624.0,1696.0
+nsel,r,loc,y,114.0,186.0
+nsel,r,loc,z,60.0,68.0
+type,2
+real,11
 mat,2
 esurf
 allsel,all
 
-! ----------------------------------------------------
+! CONTACT: PLATE1 slot nodes (mat 4, mu=0.15)
+allsel,all
+cmsel,s,PLATE1
+nslv,s,1
+nsel,r,loc,x,1624.0,1696.0
+nsel,r,loc,y,114.0,186.0
+nsel,r,loc,z,60.0,68.0
+type,3
+real,11
+mat,4
+esurf
 allsel,all
 
+! Pair 12: dowel 4 -> PLATE2 slot (mu=0.15)
+
+! TARGET: dowel 4 nodes in PLATE2 Z-zone
 allsel,all
+cmsel,s,DOWEL4
+nslv,s,1
+nsel,r,loc,x,1624.0,1696.0
+nsel,r,loc,y,114.0,186.0
+nsel,r,loc,z,132.0,140.0
+type,2
+real,12
+mat,2
+esurf
+allsel,all
+
+! CONTACT: PLATE2 slot nodes (mat 4, mu=0.15)
+allsel,all
+cmsel,s,PLATE2
+nslv,s,1
+nsel,r,loc,x,1624.0,1696.0
+nsel,r,loc,y,114.0,186.0
+nsel,r,loc,z,132.0,140.0
+type,3
+real,12
+mat,4
+esurf
+allsel,all
+
+! ---- DOWEL 5  x=1780.0  y=150.0 ----
+! Pair 13: dowel 5 -> beam hole (mu=0.3)
+
+! TARGET: dowel cylindrical surface (full Z)
+allsel,all
+cmsel,s,DOWEL5
+nslv,s,1
+nsel,r,loc,x,1744.0,1816.0
+nsel,r,loc,y,114.0,186.0
+type,2
+real,13
+mat,2
+esurf
+allsel,all
+
+! CONTACT: timber hole surface (mat 3, mu=0.3)
+allsel,all
+cmsel,s,BEAM
+nslv,s,1
+nsel,r,loc,x,1744.0,1816.0
+nsel,r,loc,y,114.0,186.0
+nsel,r,loc,z,0,200.0
+type,3
+real,13
+mat,3
+esurf
+allsel,all
+
+! Pair 14: dowel 5 -> PLATE1 slot (mu=0.15)
+
+! TARGET: dowel 5 nodes in PLATE1 Z-zone
+allsel,all
+cmsel,s,DOWEL5
+nslv,s,1
+nsel,r,loc,x,1744.0,1816.0
+nsel,r,loc,y,114.0,186.0
+nsel,r,loc,z,60.0,68.0
+type,2
+real,14
+mat,2
+esurf
+allsel,all
+
+! CONTACT: PLATE1 slot nodes (mat 4, mu=0.15)
+allsel,all
+cmsel,s,PLATE1
+nslv,s,1
+nsel,r,loc,x,1744.0,1816.0
+nsel,r,loc,y,114.0,186.0
+nsel,r,loc,z,60.0,68.0
+type,3
+real,14
+mat,4
+esurf
+allsel,all
+
+! Pair 15: dowel 5 -> PLATE2 slot (mu=0.15)
+
+! TARGET: dowel 5 nodes in PLATE2 Z-zone
+allsel,all
+cmsel,s,DOWEL5
+nslv,s,1
+nsel,r,loc,x,1744.0,1816.0
+nsel,r,loc,y,114.0,186.0
+nsel,r,loc,z,132.0,140.0
+type,2
+real,15
+mat,2
+esurf
+allsel,all
+
+! CONTACT: PLATE2 slot nodes (mat 4, mu=0.15)
+allsel,all
+cmsel,s,PLATE2
+nslv,s,1
+nsel,r,loc,x,1744.0,1816.0
+nsel,r,loc,y,114.0,186.0
+nsel,r,loc,z,132.0,140.0
+type,3
+real,15
+mat,4
+esurf
+allsel,all
+
+! ---- DOWEL 6  x=1900.0  y=150.0 ----
+! Pair 16: dowel 6 -> beam hole (mu=0.3)
+
+! TARGET: dowel cylindrical surface (full Z)
+allsel,all
+cmsel,s,DOWEL6
+nslv,s,1
+nsel,r,loc,x,1864.0,1936.0
+nsel,r,loc,y,114.0,186.0
+type,2
+real,16
+mat,2
+esurf
+allsel,all
+
+! CONTACT: timber hole surface (mat 3, mu=0.3)
+allsel,all
+cmsel,s,BEAM
+nslv,s,1
+nsel,r,loc,x,1864.0,1936.0
+nsel,r,loc,y,114.0,186.0
+nsel,r,loc,z,0,200.0
+type,3
+real,16
+mat,3
+esurf
+allsel,all
+
+! Pair 17: dowel 6 -> PLATE1 slot (mu=0.15)
+
+! TARGET: dowel 6 nodes in PLATE1 Z-zone
+allsel,all
+cmsel,s,DOWEL6
+nslv,s,1
+nsel,r,loc,x,1864.0,1936.0
+nsel,r,loc,y,114.0,186.0
+nsel,r,loc,z,60.0,68.0
+type,2
+real,17
+mat,2
+esurf
+allsel,all
+
+! CONTACT: PLATE1 slot nodes (mat 4, mu=0.15)
+allsel,all
+cmsel,s,PLATE1
+nslv,s,1
+nsel,r,loc,x,1864.0,1936.0
+nsel,r,loc,y,114.0,186.0
+nsel,r,loc,z,60.0,68.0
+type,3
+real,17
+mat,4
+esurf
+allsel,all
+
+! Pair 18: dowel 6 -> PLATE2 slot (mu=0.15)
+
+! TARGET: dowel 6 nodes in PLATE2 Z-zone
+allsel,all
+cmsel,s,DOWEL6
+nslv,s,1
+nsel,r,loc,x,1864.0,1936.0
+nsel,r,loc,y,114.0,186.0
+nsel,r,loc,z,132.0,140.0
+type,2
+real,18
+mat,2
+esurf
+allsel,all
+
+! CONTACT: PLATE2 slot nodes (mat 4, mu=0.15)
+allsel,all
+cmsel,s,PLATE2
+nslv,s,1
+nsel,r,loc,x,1864.0,1936.0
+nsel,r,loc,y,114.0,186.0
+nsel,r,loc,z,132.0,140.0
+type,3
+real,18
+mat,4
+esurf
+allsel,all
+
+! ---- DOWEL 7  x=1660.0  y=210.0 ----
+! Pair 19: dowel 7 -> beam hole (mu=0.3)
+
+! TARGET: dowel cylindrical surface (full Z)
+allsel,all
+cmsel,s,DOWEL7
+nslv,s,1
+nsel,r,loc,x,1624.0,1696.0
+nsel,r,loc,y,174.0,246.0
+type,2
+real,19
+mat,2
+esurf
+allsel,all
+
+! CONTACT: timber hole surface (mat 3, mu=0.3)
+allsel,all
+cmsel,s,BEAM
+nslv,s,1
+nsel,r,loc,x,1624.0,1696.0
+nsel,r,loc,y,174.0,246.0
+nsel,r,loc,z,0,200.0
+type,3
+real,19
+mat,3
+esurf
+allsel,all
+
+! Pair 20: dowel 7 -> PLATE1 slot (mu=0.15)
+
+! TARGET: dowel 7 nodes in PLATE1 Z-zone
+allsel,all
+cmsel,s,DOWEL7
+nslv,s,1
+nsel,r,loc,x,1624.0,1696.0
+nsel,r,loc,y,174.0,246.0
+nsel,r,loc,z,60.0,68.0
+type,2
+real,20
+mat,2
+esurf
+allsel,all
+
+! CONTACT: PLATE1 slot nodes (mat 4, mu=0.15)
+allsel,all
+cmsel,s,PLATE1
+nslv,s,1
+nsel,r,loc,x,1624.0,1696.0
+nsel,r,loc,y,174.0,246.0
+nsel,r,loc,z,60.0,68.0
+type,3
+real,20
+mat,4
+esurf
+allsel,all
+
+! Pair 21: dowel 7 -> PLATE2 slot (mu=0.15)
+
+! TARGET: dowel 7 nodes in PLATE2 Z-zone
+allsel,all
+cmsel,s,DOWEL7
+nslv,s,1
+nsel,r,loc,x,1624.0,1696.0
+nsel,r,loc,y,174.0,246.0
+nsel,r,loc,z,132.0,140.0
+type,2
+real,21
+mat,2
+esurf
+allsel,all
+
+! CONTACT: PLATE2 slot nodes (mat 4, mu=0.15)
+allsel,all
+cmsel,s,PLATE2
+nslv,s,1
+nsel,r,loc,x,1624.0,1696.0
+nsel,r,loc,y,174.0,246.0
+nsel,r,loc,z,132.0,140.0
+type,3
+real,21
+mat,4
+esurf
+allsel,all
+
+! ---- DOWEL 8  x=1780.0  y=210.0 ----
+! Pair 22: dowel 8 -> beam hole (mu=0.3)
+
+! TARGET: dowel cylindrical surface (full Z)
+allsel,all
+cmsel,s,DOWEL8
+nslv,s,1
+nsel,r,loc,x,1744.0,1816.0
+nsel,r,loc,y,174.0,246.0
+type,2
+real,22
+mat,2
+esurf
+allsel,all
+
+! CONTACT: timber hole surface (mat 3, mu=0.3)
+allsel,all
+cmsel,s,BEAM
+nslv,s,1
+nsel,r,loc,x,1744.0,1816.0
+nsel,r,loc,y,174.0,246.0
+nsel,r,loc,z,0,200.0
+type,3
+real,22
+mat,3
+esurf
+allsel,all
+
+! Pair 23: dowel 8 -> PLATE1 slot (mu=0.15)
+
+! TARGET: dowel 8 nodes in PLATE1 Z-zone
+allsel,all
+cmsel,s,DOWEL8
+nslv,s,1
+nsel,r,loc,x,1744.0,1816.0
+nsel,r,loc,y,174.0,246.0
+nsel,r,loc,z,60.0,68.0
+type,2
+real,23
+mat,2
+esurf
+allsel,all
+
+! CONTACT: PLATE1 slot nodes (mat 4, mu=0.15)
+allsel,all
+cmsel,s,PLATE1
+nslv,s,1
+nsel,r,loc,x,1744.0,1816.0
+nsel,r,loc,y,174.0,246.0
+nsel,r,loc,z,60.0,68.0
+type,3
+real,23
+mat,4
+esurf
+allsel,all
+
+! Pair 24: dowel 8 -> PLATE2 slot (mu=0.15)
+
+! TARGET: dowel 8 nodes in PLATE2 Z-zone
+allsel,all
+cmsel,s,DOWEL8
+nslv,s,1
+nsel,r,loc,x,1744.0,1816.0
+nsel,r,loc,y,174.0,246.0
+nsel,r,loc,z,132.0,140.0
+type,2
+real,24
+mat,2
+esurf
+allsel,all
+
+! CONTACT: PLATE2 slot nodes (mat 4, mu=0.15)
+allsel,all
+cmsel,s,PLATE2
+nslv,s,1
+nsel,r,loc,x,1744.0,1816.0
+nsel,r,loc,y,174.0,246.0
+nsel,r,loc,z,132.0,140.0
+type,3
+real,24
+mat,4
+esurf
+allsel,all
+
+! ---- DOWEL 9  x=1900.0  y=210.0 ----
+! Pair 25: dowel 9 -> beam hole (mu=0.3)
+
+! TARGET: dowel cylindrical surface (full Z)
+allsel,all
+cmsel,s,DOWEL9
+nslv,s,1
+nsel,r,loc,x,1864.0,1936.0
+nsel,r,loc,y,174.0,246.0
+type,2
+real,25
+mat,2
+esurf
+allsel,all
+
+! CONTACT: timber hole surface (mat 3, mu=0.3)
+allsel,all
+cmsel,s,BEAM
+nslv,s,1
+nsel,r,loc,x,1864.0,1936.0
+nsel,r,loc,y,174.0,246.0
+nsel,r,loc,z,0,200.0
+type,3
+real,25
+mat,3
+esurf
+allsel,all
+
+! Pair 26: dowel 9 -> PLATE1 slot (mu=0.15)
+
+! TARGET: dowel 9 nodes in PLATE1 Z-zone
+allsel,all
+cmsel,s,DOWEL9
+nslv,s,1
+nsel,r,loc,x,1864.0,1936.0
+nsel,r,loc,y,174.0,246.0
+nsel,r,loc,z,60.0,68.0
+type,2
+real,26
+mat,2
+esurf
+allsel,all
+
+! CONTACT: PLATE1 slot nodes (mat 4, mu=0.15)
+allsel,all
+cmsel,s,PLATE1
+nslv,s,1
+nsel,r,loc,x,1864.0,1936.0
+nsel,r,loc,y,174.0,246.0
+nsel,r,loc,z,60.0,68.0
+type,3
+real,26
+mat,4
+esurf
+allsel,all
+
+! Pair 27: dowel 9 -> PLATE2 slot (mu=0.15)
+
+! TARGET: dowel 9 nodes in PLATE2 Z-zone
+allsel,all
+cmsel,s,DOWEL9
+nslv,s,1
+nsel,r,loc,x,1864.0,1936.0
+nsel,r,loc,y,174.0,246.0
+nsel,r,loc,z,132.0,140.0
+type,2
+real,27
+mat,2
+esurf
+allsel,all
+
+! CONTACT: PLATE2 slot nodes (mat 4, mu=0.15)
+allsel,all
+cmsel,s,PLATE2
+nslv,s,1
+nsel,r,loc,x,1864.0,1936.0
+nsel,r,loc,y,174.0,246.0
+nsel,r,loc,z,132.0,140.0
+type,3
+real,27
+mat,4
+esurf
+allsel,all
+
+! ============================================================
+allsel,all
+
+! PINB = 10 mm for all contact pairs (field 4 of CONTA174 real constants).
+! Prevents missed contact from curved-surface facet gaps (~1 mm at 10 mm mesh).
+*do,ipinb,1,27
+rmodif,ipinb,4,10.0
+*enddo
+allsel,all
+
+! ============================================================
+! SOLUTION
+! ============================================================
+finish
+/solu
+antype,static
+
+! Fixed support: lock all DOF on the timber left face (x=0)
+nsel,s,loc,x,0,20.0
+d,all,all,0
+allsel,all
+
+! Loaded end: impose displacement on all plate end faces (x=L)
+cmsel,s,PLATE1
+nslv,s,1
+nsel,r,loc,x,1980.0,2020.0
+d,all,ux,20.0
+d,all,uy,0
+d,all,uz,0
+allsel,all
+
+cmsel,s,PLATE2
+nslv,s,1
+nsel,r,loc,x,1980.0,2020.0
+d,all,ux,20.0
+d,all,uy,0
+d,all,uz,0
+allsel,all
+
+! Nonlinear geometry on - required for frictional contact
+nlgeom,on
+nsubst,10,50,5
+cnvtol,f,,0.01
+outres,all,last
+
+solve
+finish
+
+! ============================================================
+! POST-PROCESSING: open manually in ANSYS GUI after solve
+! General Postproc -> Plot Results -> Contour Plot -> Nodal Solu
+! ============================================================
+/post1
+set,last
 finish
