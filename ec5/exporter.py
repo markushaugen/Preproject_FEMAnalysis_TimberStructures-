@@ -31,6 +31,7 @@ class MapdlExporter:
     # MATERIALS
     def _material_block_wood(self, mat_id: int, timber: TimberDesign) -> str:
         e = timber.elastic
+        s = timber.strength_char
         return "\n".join([
             "/PREP7",
             "! timber material",
@@ -44,6 +45,11 @@ class MapdlExporter:
             f"mp,gyz,{mat_id},{e.GYZ}",
             f"mp,gxz,{mat_id},{e.GXZ}",
             "",
+            "! timber failure: maximum stress criterion (EN 14080 characteristic values)",
+            "! tbdata: Xc, Xt, Yc, Yt, Zc, Zt, Sxy, Syz, Sxz  [MPa]",
+            f"tb,fail,{mat_id},,,mxst",
+            f"tbdata,1,{s.fc0k},{s.ft0k},{s.fc90k},{s.ft90k},{s.fc90k},{s.ft90k},{s.fvk},{s.fvk},{s.fvk}",
+            "",
         ])
 
     def _material_block_steel(self, mat_id: int) -> str:
@@ -51,6 +57,11 @@ class MapdlExporter:
             "! steel material",
             f"mp,ex,{mat_id},210000",
             f"mp,prxy,{mat_id},0.3",
+            "",
+            "! steel plasticity: bilinear isotropic hardening (S355)",
+            "! tbdata: fy [MPa], tangent modulus Et=E/100 [MPa]",
+            f"tb,biso,{mat_id}",
+            f"tbdata,1,355,2100",
             "",
         ])
 
@@ -90,6 +101,8 @@ class MapdlExporter:
             return "! no plate\n"
 
         slot_x1, slot_x2 = geo.plate_extents()
+        cut_y1  = 0
+        cut_y2  = geo.beam_height
         slot_y1 = geo.slot_y1
         slot_y2 = geo.slot_y2
         cY = geo.clearance_y
@@ -105,7 +118,7 @@ class MapdlExporter:
             sz2 = zc + tp / 2.0
             lines += [
                 f"! Cut slot {k} from BEAM (z = {sz1:.3f} to {sz2:.3f})",
-                f"block,{slot_x1},{slot_x2}, {slot_y1},{slot_y2}, {sz1},{sz2}",
+                f"block,{slot_x1},{slot_x2}, {cut_y1},{cut_y2}, {sz1},{sz2}",
                 "*get,vid_slot,volu,0,num,max",
                 "cmsel,s,BEAM",
                 "vsbv,all,vid_slot",
@@ -776,6 +789,18 @@ class MapdlExporter:
             "finish",
             "/solu",
             "antype,static",
+            "kbc,0  ! ramped loading: displacement increases linearly over each load step",
+            "",
+            "! Named node components for post-processing (reaction force / displacement curves)",
+            f"nsel,s,loc,x,0,{tol}",
+            "cm,FIXED_FACE,node",
+            "allsel,all",
+            "",
+            "cmsel,s,PLATE1",
+            "nslv,s,1",
+            f"nsel,r,loc,x,{L - tol},{L + tol}",
+            "cm,PLATE_END,node",
+            "allsel,all",
             "",
             "! Fixed support: lock all DOF on the timber left face (x=0)",
             f"nsel,s,loc,x,0,{tol}",
@@ -796,25 +821,105 @@ class MapdlExporter:
                 "",
             ]
         lines += [
+            "! Create master node at plate end centroid",
+            f"n,99999,{L},{geo.beam_height/2},{geo.beam_width/2}",
+            "",
+            "! Select all plate end slave nodes",
+            "cmsel,s,PLATE1",
+            "nslv,s,1",
+            f"nsel,r,loc,x,{L - tol},{L + tol}",
+            "cm,PLATE_END_NODES,node",
+            "*get,ns_count,node,0,count",
+            "allsel,all",
+            "",
+            "! CERIG loop: walk through PLATE_END_NODES one by one",
+            "cmsel,s,PLATE_END_NODES",
+            "*get,cur_node,node,0,num,min",
+            "*do,ks,1,ns_count",
+            "  cerig,99999,cur_node,all",
+            "  *get,cur_node,node,cur_node,nxth",
+            "*enddo",
+            "allsel,all",
+            "",
+            "! Remove slave BCs — master node controls displacement",
+            "cmsel,s,PLATE_END_NODES",
+            "ddele,all,all",
+            "allsel,all",
+            "",
+            "! Apply displacement to master node only",
+            f"d,99999,ux,{imposed_disp_mm}",
+            "d,99999,uy,0",
+            "d,99999,uz,0",
+            "allsel,all",
+            "",
+        ]
+        lines += [
             "! Nonlinear geometry on - required for frictional contact",
             "nlgeom,on",
-            "nsubst,10,50,5",
+            "stabilize,constant,energy,0.0001",
+            "lnsrch,on",
+            "nsubst,15,100,5",
             "cnvtol,f,,0.01",
-            "outres,all,last",
+            "outres,all,all",
             "",
             "solve",
             "finish",
             "",
-            "! ============================================================",
-            "! POST-PROCESSING: open manually in ANSYS GUI after solve",
-            "! General Postproc -> Plot Results -> Contour Plot -> Nodal Solu",
-            "! ============================================================",
-            "/post1",
-            "set,last",
-            "finish",
-            "",
         ]
         return "\n".join(lines)
+
+    def _postprocessing_block(self, geo: Geometry) -> str:
+        L   = geo.beam_length
+        tol = max(1.0, self.element_size_mm * 0.5)
+        zc  = geo.plate_z_centers()[0]
+        tp  = geo.plate_thickness
+        z1  = zc - tp
+        z2  = zc + tp
+
+        return "\n".join([
+            "! ============================================================",
+            "! POST-PROCESSING: force-displacement extraction (all substeps)",
+            "! ============================================================",
+            "/post1",
+            "",
+            "! Get actual number of converged substeps",
+            "*get,nsets,active,,set,nset",
+            "",
+            "! Find reference node on PLATE1 at x=L (filter by plate z-zone)",
+            f"nsel,s,loc,x,{L - tol},{L + tol}",
+            f"nsel,r,loc,z,{z1},{z2}",
+            "*get,pnode,node,0,num,min",
+            "allsel,all",
+            "",
+            "! Allocate result arrays (dynamic size based on actual substeps)",
+            "*dim,ux_arr,array,nsets",
+            "*dim,fx_arr,array,nsets",
+            "*dim,time_arr,array,nsets",
+            "",
+            "! Loop over all substeps: extract time, displacement and reaction force",
+            "*do,i,1,nsets",
+            "   set,,,,,,,i",
+            "   *get,time_arr(i),active,,set,time",
+            f"   nsel,s,loc,x,0,{tol}",
+            "   fsum,,both",
+            "   *get,fx_arr(i),fsum,,item,fx",
+            "   allsel,all",
+            "   *get,ux_arr(i),node,pnode,u,x",
+            "*enddo",
+            "",
+            "! Export to CSV",
+            "*cfopen,force_displacement,csv",
+            "*vwrite,'time_s','UX_mm','FX_N'",
+            "%C,%C,%C",
+            "*do,i,1,nsets",
+            "*vwrite,time_arr(i),ux_arr(i),fx_arr(i)",
+            "%16.6G,%16.6G,%16.6G",
+            "*enddo",
+            "*cfclos",
+            "",
+            "finish",
+            "",
+        ])
 
     # EXPORT
     def export_mapdl_model(
@@ -870,6 +975,9 @@ class MapdlExporter:
         blocks.append(self._contact_block_bonded(geo))
         if solve:
             blocks.append(self._solution_block(geo, imposed_disp_mm))
+            blocks.append(self._postprocessing_block(geo))
 
+        import os
+        os.makedirs("results", exist_ok=True)
         Path(path).write_text("\n".join(blocks))
 

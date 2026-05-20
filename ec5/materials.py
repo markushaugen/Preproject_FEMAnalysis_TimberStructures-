@@ -12,7 +12,7 @@ MATERIALS_FALLBACK: Dict[str, Dict[str, object]] = {
         "elastic": OrthoElastic(
             EX=11000, EY=370, EZ=370,
             PRXY=0.35, PRYZ=0.35, PRXZ=0.35,
-            GXY=690, GYZ=550, GXZ=550,
+            GXY=690, GYZ=69, GXZ=690,  # GYZ=rolling shear; GXY=GXZ=longitudinal shear
         ),
         "strength": TimberStrength(
             fc0k=21, ft0k=14, ft90k=0.4,
@@ -34,9 +34,9 @@ def _from_row(r: Dict[str, str]) -> Tuple[OrthoElastic, TimberStrength]:
         PRXY=float(r["nu"]),
         PRYZ=float(r["nu"]),
         PRXZ=float(r["nu"]),
-        GXY=float(r["Gmean"]) * PA_TO_MPA,
-        GYZ=float(r["Gmean"]) * 0.8 * PA_TO_MPA,
-        GXZ=float(r["Gmean"]) * 0.8 * PA_TO_MPA,
+        GXY=float(r["Gmean"]) * PA_TO_MPA,       # longitudinal shear (L×T)
+        GYZ=float(r["Gmean"]) * 0.1 * PA_TO_MPA,  # rolling shear (T×R) ≈ G/10
+        GXZ=float(r["Gmean"]) * PA_TO_MPA,       # longitudinal shear (L×R)
     )
 
     strength = TimberStrength(
