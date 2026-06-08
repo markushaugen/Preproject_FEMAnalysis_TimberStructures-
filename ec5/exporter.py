@@ -101,8 +101,6 @@ class MapdlExporter:
             return "! no plate\n"
 
         slot_x1, slot_x2 = geo.plate_extents()
-        cut_y1  = 0
-        cut_y2  = geo.beam_height
         slot_y1 = geo.slot_y1
         slot_y2 = geo.slot_y2
         cY = geo.clearance_y
@@ -118,14 +116,14 @@ class MapdlExporter:
             sz2 = zc + tp / 2.0
             lines += [
                 f"! Cut slot {k} from BEAM (z = {sz1:.3f} to {sz2:.3f})",
-                f"block,{slot_x1},{slot_x2}, {cut_y1},{cut_y2}, {sz1},{sz2}",
+                f"block,{slot_x1-1},{slot_x2+1}, -1,{geo.beam_height+1}, {sz1-1},{sz2+1}",
                 "*get,vid_slot,volu,0,num,max",
                 "cmsel,s,BEAM",
-                "vsbv,all,vid_slot",
+                "*get,vid_beam,volu,0,num,min",
+                "allsel,all",
+                "vsbv,vid_beam,vid_slot",
                 "cmdele,BEAM",
                 "cm,BEAM,volu",
-                "allsel,all",
-                "vdele,vid_slot",
                 "allsel,all",
                 "",
             ]
@@ -244,14 +242,13 @@ class MapdlExporter:
                 "WPROTA,0,0,0",
                 "",
                 f"CYL4,{x},{y},{r_beam_hole},,,,{B}",
-                "*get,vhole,volu,0,num,max",
-                "",
+                "*get,vid_hole,volu,0,num,max",
                 "cmsel,s,BEAM",
-                "vsbv,all,vhole",
+                "*get,vid_beam,volu,0,num,min",
+                "allsel,all",
+                "vsbv,vid_beam,vid_hole",
                 "cmdele,BEAM",
                 "cm,BEAM,volu",
-                "allsel,all",
-                "vdele,vhole",
                 "allsel,all",
                 "",
             ]
